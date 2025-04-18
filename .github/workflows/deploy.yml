@@ -21,10 +21,9 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: '16'
-        cache: 'npm'
         
     - name: Install dependencies
-      run: npm ci
+      run: npm install
       
     - name: Run tests
       run: npm test || echo "No tests found"
@@ -32,7 +31,7 @@ jobs:
     - name: Create deployment package
       run: |
         mkdir -p deployment
-        cp -r app.js server.js template.html package*.json deployment/
+        cp -r app.js server.js template.html package*.json index.html deployment/
         # Create directories if they don't exist in the repo
         mkdir -p deployment/debug_output
         # Add chmod to ensure directories are writable
