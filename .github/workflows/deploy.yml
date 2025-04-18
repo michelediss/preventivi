@@ -44,5 +44,5 @@ jobs:
         username: ${{ secrets.CPANEL_USERNAME }}
         password: ${{ secrets.CPANEL_PASSWORD }}
         local-dir: ./deployment/
-        server-dir: /preventivi.michelepaolino.com/
+        server-dir: /
         dangerous-clean-slate: false # Set to true only if you want to delete all existing files first
