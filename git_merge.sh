@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Funzione per gestire gli errori
 error_exit() {
     echo "Errore: $1" >&2
@@ -20,10 +19,52 @@ fi
 DEV_BRANCH="dev"
 MASTER_BRANCH="master"
 COMMIT_MESSAGE="${1:-Aggiornamento automatico}"
+GITHUB_WORKFLOW_FILE=".github/workflows/deploy.yml"
 
 # Salva il branch corrente
 CURRENT_BRANCH=$(git symbolic-ref --short HEAD)
 log_info "Branch corrente: $CURRENT_BRANCH"
+
+# Funzione per verificare e aggiornare il file di deployment
+check_and_fix_workflow() {
+    local branch=$1
+    log_info "Verifico il file di workflow nel branch $branch"
+    
+    # Cerca il file di workflow (potrebbe avere nomi diversi)
+    local workflow_files=(.github/workflows/*.yml .github/workflows/*.yaml)
+    local found_file=false
+    
+    for file in "${workflow_files[@]}"; do
+        if [ -f "$file" ]; then
+            log_info "Analisi del file di workflow: $file"
+            found_file=true
+            
+            # Cerca la riga problematica che limita i file da copiare
+            if grep -q "cp -r app.js server.js template.html package\*\.json index.html deployment/" "$file"; then
+                log_info "Trovata configurazione limitata nel file $file, aggiornamento in corso..."
+                
+                # Usa sed per sostituire la riga problematica
+                sed -i 's|cp -r app.js server.js template.html package\*\.json index.html deployment/|cp -r * deployment/ 2>/dev/null || true\n          rm -rf deployment/.git deployment/.github deployment/node_modules 2>/dev/null || true|g' "$file"
+                
+                # Controlla se la sostituzione è avvenuta correttamente
+                if grep -q "cp -r \* deployment/ 2>/dev/null || true" "$file"; then
+                    log_info "File di workflow aggiornato con successo"
+                    git add "$file"
+                    git commit -m "Aggiornamento configurazione di deploy per includere tutti i file" || log_info "Nessuna modifica da committare"
+                    return 0
+                else
+                    log_info "Tentativo di aggiornamento non riuscito, potrebbe essere necessario modificare manualmente il file"
+                fi
+            else
+                log_info "Configurazione già corretta o non riconosciuta in $file"
+            fi
+        fi
+    done
+    
+    if [ "$found_file" = false ]; then
+        log_info "Nessun file di workflow trovato in .github/workflows/"
+    fi
+}
 
 # Verifica che non ci siano modifiche in sospeso
 if [[ -n "$(git status -s)" ]]; then
@@ -35,6 +76,9 @@ fi
 # Vai sul branch dev
 log_info "Passaggio al branch $DEV_BRANCH"
 git checkout "$DEV_BRANCH" || error_exit "Impossibile passare al branch $DEV_BRANCH"
+
+# Verifica e correggi il workflow nel branch dev
+check_and_fix_workflow "$DEV_BRANCH"
 
 # Pull prima del push per evitare conflitti
 log_info "Pull dal branch $DEV_BRANCH remoto"
@@ -54,6 +98,9 @@ fi
 log_info "Passaggio al branch $MASTER_BRANCH"
 git checkout "$MASTER_BRANCH" || error_exit "Impossibile passare al branch $MASTER_BRANCH"
 
+# Verifica e correggi il workflow nel branch master
+check_and_fix_workflow "$MASTER_BRANCH"
+
 log_info "Pull dal branch $MASTER_BRANCH remoto"
 git pull origin "$MASTER_BRANCH" || error_exit "Impossibile fare pull su $MASTER_BRANCH"
 
@@ -67,6 +114,9 @@ git merge "$DEV_BRANCH" || {
     log_info "git push origin $MASTER_BRANCH"
     exit 1
 }
+
+# Verifica nuovamente il workflow dopo il merge
+check_and_fix_workflow "$MASTER_BRANCH"
 
 # Pusha le modifiche su master
 log_info "Push sul branch $MASTER_BRANCH"
