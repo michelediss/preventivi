@@ -2,7 +2,6 @@ const http = require('http');
 const path = require('path');
 const fs = require('fs');
 const url = require('url');
-const { exec } = require('child_process');
 
 // Import the PDF generation functionality
 const pdfGenerator = require('./app.js');
@@ -53,21 +52,73 @@ const server = http.createServer((req, res) => {
       });
     }
   } else if (pathname === '/generate-pdf') {
-    // For simple form submissions or direct API calls
+    // Per richieste di generazione PDF dirette
     res.writeHead(200, { 'Content-Type': 'text/html' });
     
-    // Get the textDomain from the form, or use default
+    // Recupera il dominio dalla query string
     const domainToGenerate = queryParams.domain || 'casawa';
+    
+    console.log(`Generating PDF for domain: ${domainToGenerate}`);
     
     // Run the PDF generation
     pdfGenerator.generatePreventivo(domainToGenerate)
       .then(result => {
-        res.end(`<html><body>
-          <h2>PDF Generation ${result.success ? 'Successful' : 'Failed'}</h2>
-          <p>${result.message}</p>
-          ${result.success ? `<p><a href="/debug_output/${result.filename}.pdf" target="_blank">View PDF</a></p>` : ''}
-          <p><a href="/">Back to Home</a></p>
-        </body></html>`);
+        if (result.success) {
+          // Preparare e servire la pagina di successo
+          fs.readFile(path.join(__dirname, 'success.html'), 'utf8', (err, htmlContent) => {
+            if (err) {
+              // In caso di errore nel caricamento della pagina di successo, usa una risposta semplice
+              res.end(`<html><body>
+                <h2>PDF Generation Successful</h2>
+                <p>${result.message}</p>
+                <p><a href="/debug_output/${result.filename}.pdf" target="_blank">View PDF</a></p>
+                <p><a href="/">Back to Home</a></p>
+              </body></html>`);
+              return;
+            }
+            
+            // Ottieni timestamp corrente formattato
+            const now = new Date();
+            const formattedDate = now.toLocaleString('it-IT', {
+              day: '2-digit', 
+              month: '2-digit', 
+              year: 'numeric',
+              hour: '2-digit', 
+              minute: '2-digit'
+            });
+            
+            // Tenta di recuperare maggiori informazioni dal modulo del risultato
+            let projectName = domainToGenerate;
+            let clientName = 'Cliente';
+            
+            // Se è disponibile il risultato della generazione, estrai più informazioni
+            if (result.projectData && result.projectData.progetto) {
+              projectName = result.projectData.progetto;
+            }
+            
+            if (result.projectData && result.projectData.nomeCliente) {
+              clientName = result.projectData.nomeCliente;
+            }
+            
+            // Sostituisci i segnaposto con i dati reali
+            const populatedHtml = htmlContent
+              .replace('{{projectName}}', projectName)
+              .replace('{{clientName}}', clientName)
+              .replace('{{textDomain}}', domainToGenerate)
+              .replace('{{generationDate}}', formattedDate)
+              .replace(/{{pdfUrl}}/g, `/debug_output/${result.filename}.pdf`)
+              .replace(/{{textDomain}}/g, domainToGenerate);
+            
+            res.end(populatedHtml);
+          });
+        } else {
+          // In caso di errore nella generazione
+          res.end(`<html><body>
+            <h2>PDF Generation Failed</h2>
+            <p>${result.message}</p>
+            <p><a href="/">Back to Home</a></p>
+          </body></html>`);
+        }
       })
       .catch(error => {
         res.end(`<html><body>
@@ -119,4 +170,5 @@ const PORT = process.env.PORT || 3000;
 // Start the server
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`PDF generator service is ready at http://localhost:${PORT}/generate-pdf?domain=YOUR_DOMAIN`);
 });

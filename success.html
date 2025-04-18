@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preventivo Generato | Preventivi Michele Paolino</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f9fafb;
+    }
+    .success-icon {
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.1);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+    .shadow-custom {
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+  </style>
+</head>
+<body>
+  <div class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white shadow-sm py-4">
+      <div class="container mx-auto px-4 flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-blue-600">Preventivi Generator</h1>
+        <a href="/" class="text-gray-600 hover:text-gray-800">
+          <i class="fas fa-home mr-1"></i> Home
+        </a>
+      </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center px-4 py-10">
+      <div class="max-w-3xl w-full bg-white rounded-lg shadow-custom overflow-hidden">
+        <!-- Success Header -->
+        <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-8 text-center">
+          <div class="mb-4">
+            <i class="fas fa-check-circle text-white text-6xl success-icon"></i>
+          </div>
+          <h2 class="text-3xl font-bold text-white">Preventivo Generato con Successo!</h2>
+          <p class="text-green-100 mt-2">Il documento PDF è pronto per la visualizzazione e il download</p>
+        </div>
+        
+        <!-- Content -->
+        <div class="px-6 py-8">
+          <!-- Project Details -->
+          <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">Dettagli del Preventivo</h3>
+            <div class="grid md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <p class="text-gray-600">Progetto:</p>
+                <p class="font-medium text-gray-900" id="project-name">{{projectName}}</p>
+              </div>
+              <div>
+                <p class="text-gray-600">Cliente:</p>
+                <p class="font-medium text-gray-900" id="client-name">{{clientName}}</p>
+              </div>
+              <div>
+                <p class="text-gray-600">Text Domain:</p>
+                <p class="font-medium text-gray-900" id="text-domain">{{textDomain}}</p>
+              </div>
+              <div>
+                <p class="text-gray-600">Data Generazione:</p>
+                <p class="font-medium text-gray-900" id="generation-date">{{generationDate}}</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Actions -->
+          <div class="flex flex-col md:flex-row gap-4">
+            <a href="{{pdfUrl}}" target="_blank" class="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition duration-200">
+              <i class="fas fa-eye"></i>
+              <span>Visualizza PDF</span>
+            </a>
+            <a href="{{pdfUrl}}" download class="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition duration-200">
+              <i class="fas fa-download"></i>
+              <span>Scarica PDF</span>
+            </a>
+          </div>
+          
+          <!-- Extra Actions -->
+          <div class="mt-6 pt-6 border-t border-gray-200">
+            <div class="flex flex-col sm:flex-row gap-4">
+              <a href="/" class="flex-1 flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-lg transition duration-200">
+                <i class="fas fa-home"></i>
+                <span>Torna alla Home</span>
+              </a>
+              <a href="/generate-pdf?domain={{textDomain}}" class="flex-1 flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-lg transition duration-200">
+                <i class="fas fa-redo"></i>
+                <span>Rigenera</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-6">
+      <div class="container mx-auto px-4 text-center text-sm text-gray-600">
+        <p>&copy; 2025 Michele Paolino. Tutti i diritti riservati.</p>
+        <p class="mt-1">Generatore automatico di preventivi da Airtable</p>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

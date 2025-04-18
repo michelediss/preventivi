@@ -563,7 +563,12 @@ async function generatePreventivo(textDomain) {
       return {
         success: true,
         message: `PDF successfully generated: ${baseFilename}.pdf`,
-        filename: baseFilename
+        filename: baseFilename,
+        projectData: {
+          progetto: progetto,
+          nomeCliente: nomeCliente,
+          textDomain: textDomain
+        }
       };
     } else {
       console.error(`❌ Error generating PDF: ${baseFilename}.pdf`);
