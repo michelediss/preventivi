@@ -1,0 +1,119 @@
+Deployment Guide for Preventivi Generator
+
+This guide will help you set up automated deployment using GitHub Actions to deploy your Node.js application to cPanel whenever changes are merged from the dev branch to the master branch.
+Prerequisites
+
+    A GitHub account
+    Your cPanel credentials
+    Node.js application already set up in cPanel at preventivi.michelepaolino.com
+    Git installed on your local machine
+
+Step 1: Set Up Your GitHub Repository
+
+    Create a new repository on GitHub (if you haven't already)
+    Initialize your local repository and push your code:
+
+bash
+
+# Navigate to your project directory
+cd /path/to/your/project
+
+# Initialize Git if not already done
+git init
+
+# Add your files
+git add .
+
+# Create an initial commit
+git commit -m "Initial commit"
+
+# Add the GitHub repository as a remote
+git remote add origin https://github.com/yourusername/your-repo-name.git
+
+# Push your code to the master branch
+git push -u origin master
+
+# Create a dev branch
+git checkout -b dev
+
+# Push the dev branch to GitHub
+git push -u origin dev
+
+Step 2: Configure GitHub Secrets
+
+GitHub Actions needs secure access to your cPanel credentials. Add them as GitHub Secrets:
+
+    Go to your GitHub repository
+    Click on "Settings" > "Secrets and variables" > "Actions"
+    Click "New repository secret"
+    Add the following secrets:
+        Name: CPANEL_SERVER
+        Value: your-cpanel-server.com (the FTP hostname, usually ftp.yourdomain.com)
+        Name: CPANEL_USERNAME
+        Value: your-cpanel-username (usually your cPanel username)
+        Name: CPANEL_PASSWORD
+        Value: your-cpanel-password (your cPanel or FTP-specific password)
+
+Step 3: Create GitHub Actions Workflow File
+
+    Create a .github/workflows directory in your repository:
+
+bash
+
+mkdir -p .github/workflows
+
+    Create a file named deploy.yml in this directory and copy the workflow configuration from the provided YAML file.
+    Commit and push this file to your repository:
+
+bash
+
+git add .github/workflows/deploy.yml
+git commit -m "Add GitHub Actions workflow for deployment"
+git push origin dev
+
+Step 4: Test Your Deployment Pipeline
+
+    Make sure your application is ready for deployment
+    Create a pull request from dev to master
+    Review and merge the pull request
+    Monitor the Actions tab in your GitHub repository to see the deployment progress
+
+How the Pipeline Works
+
+The workflow you've set up will:
+
+    Trigger when:
+        Changes are pushed directly to the master branch
+        A pull request from dev to master is merged
+    Run a series of steps:
+        Check out your code
+        Set up Node.js
+        Install dependencies
+        Run tests (if you have any)
+        Create a deployment package
+        Upload the files to your cPanel via FTP
+
+Troubleshooting
+
+If you encounter any issues during deployment:
+
+    Check the GitHub Actions logs for detailed error messages
+    Verify your cPanel credentials are correct
+    Ensure your cPanel server allows FTP connections
+    Check if the destination directory on your cPanel has the correct permissions
+
+Application-Specific Notes for Preventivi Generator
+
+    Make sure the debug_output directory exists and has write permissions (755) on your server
+    The FTP deployment copies only the necessary files for running the application
+    If you need to add more files to the deployment package, modify the Create deployment package step in the workflow
+
+Future Improvements
+
+Consider these enhancements for your deployment pipeline:
+
+    Add environment-specific configuration files
+    Implement a staging environment for pre-production testing
+    Add automatic version tagging
+    Add Slack or email notifications for successful/failed deployments
+

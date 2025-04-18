@@ -1,3 +1,6 @@
+// Load environment variables from .env file
+require('dotenv').config();
+
 const Airtable = require("airtable");
 const fs = require("fs");
 const path = require("path");
@@ -7,13 +10,13 @@ const puppeteer = require("puppeteer");
 // DEBUG CONFIGURATION SECTION - EASY TO TOGGLE ON/OFF
 // ===================================================
 const DEBUG = {
-  enabled: true,              // Master switch to enable/disable all debugging
-  saveFiles: true,            // Save debug files to disk
-  saveResponses: true,        // Save API responses
-  saveTemplateData: true,     // Save template data
-  saveHtml: true,             // Save generated HTML
-  screenshot: true,           // Take screenshot during PDF generation
-  verboseLogging: true,       // Enable verbose console logging
+  enabled: process.env.DEBUG_ENABLED === 'true' || true,              // Master switch to enable/disable all debugging
+  saveFiles: process.env.DEBUG_SAVE_FILES === 'true' || true,            // Save debug files to disk
+  saveResponses: process.env.DEBUG_SAVE_RESPONSES === 'true' || true,        // Save API responses
+  saveTemplateData: process.env.DEBUG_SAVE_TEMPLATE_DATA === 'true' || true,     // Save template data
+  saveHtml: process.env.DEBUG_SAVE_HTML === 'true' || true,             // Save generated HTML
+  screenshot: process.env.DEBUG_SCREENSHOT === 'true' || true,           // Take screenshot during PDF generation
+  verboseLogging: process.env.DEBUG_VERBOSE_LOGGING === 'true' || true,       // Enable verbose console logging
   
   // Debug directory configuration
   directory: path.join(__dirname, "debug_output"),
@@ -105,9 +108,9 @@ DEBUG.init();
 // Leggi il template HTML dal file
 const templateHtml = fs.readFileSync("template.html", "utf8");
 
-// Configurazione API Airtable
-const BASE_ID = "appI4MDJQWhoZd8EA";
-const TOKEN = "patJApgGRy7CIodkT.058cabd6e2f225b589887a20fba5d6735dccb1151f160142b73d401a5253b9fd";
+// Configurazione API Airtable usando variabili d'ambiente
+const BASE_ID = process.env.AIRTABLE_BASE_ID || "appI4MDJQWhoZd8EA";
+const TOKEN = process.env.AIRTABLE_API_KEY || "patJApgGRy7CIodkT.058cabd6e2f225b589887a20fba5d6735dccb1151f160142b73d401a5253b9fd";
 
 // Inizializza Airtable
 Airtable.configure({ apiKey: TOKEN });
@@ -443,158 +446,156 @@ async function generatePDF(htmlContent, baseFilename) {
 // MAIN APPLICATION FUNCTION
 // ===================================================
 
-async function main() {
+async function generatePreventivo(textDomain) {
   try {
-    DEBUG.log("Starting application...");
+    DEBUG.log(`Starting generation for text domain: ${textDomain}`);
     
-    const textDomain = "casawa"; // Change if needed
-
-    DEBUG.log(`Fetching project with text domain: ${textDomain}`);
     const projectData = await getProjectByTextDomain(textDomain);
     if (!projectData || !projectData.records || projectData.records.length === 0) {
-      DEBUG.log(`No project found for text domain: ${textDomain}`);
-      return;
+      return {
+        success: false,
+        message: `No project found for text domain: ${textDomain}`,
+        filename: null
+      };
     }
 
     DEBUG.log("Fetching personal records...");
     const personals = await getAllRecords("personal");
 
-    for (const project of projectData.records) {
-      DEBUG.log(`Processing project: ${project.id}`);
-      const fields = project.fields || {};
-      
-      // Debug output to see the raw project fields
-      DEBUG.log("Project fields:");
-      DEBUG.log(JSON.stringify(fields, null, 2));
-      
-      // Ensure these are arrays to prevent the TypeError
-      const clientIds = Array.isArray(fields.cliente) ? fields.cliente : [];
-      const taskIds = Array.isArray(fields.tasks) ? fields.tasks : [];
-      const accountIds = Array.isArray(fields.account) ? fields.account : [];
-      // Check if account field exists in a different format or name
-      if (accountIds.length === 0 && fields.accounts) {
-        DEBUG.log("Using 'accounts' field instead of 'account'");
-        accountIds.push(...(Array.isArray(fields.accounts) ? fields.accounts : []));
-      }
-      DEBUG.log(`Account IDs: ${JSON.stringify(accountIds)}`);
-      const projectPersonalIds = Array.isArray(fields.personal) ? fields.personal : [];
+    const project = projectData.records[0];
+    DEBUG.log(`Processing project: ${project.id}`);
+    const fields = project.fields || {};
+    
+    // Debug output to see the raw project fields
+    DEBUG.log("Project fields:");
+    DEBUG.log(JSON.stringify(fields, null, 2));
+    
+    // Ensure these are arrays to prevent the TypeError
+    const clientIds = Array.isArray(fields.cliente) ? fields.cliente : [];
+    const taskIds = Array.isArray(fields.tasks) ? fields.tasks : [];
+    const accountIds = Array.isArray(fields.accounts) ? fields.accounts : [];
+    
+    DEBUG.log(`Account IDs: ${JSON.stringify(accountIds)}`);
+    const projectPersonalIds = Array.isArray(fields.personal) ? fields.personal : [];
 
-      DEBUG.log("Fetching client details...");
-      const clients = await getRecordsByIds("clienti", clientIds);
+    DEBUG.log("Fetching client details...");
+    const clients = await getRecordsByIds("clienti", clientIds);
 
-      DEBUG.log("Fetching tasks...");
-      const tasks = await getRecordsByIds("tasks", taskIds);
+    DEBUG.log("Fetching tasks...");
+    const tasks = await getRecordsByIds("tasks", taskIds);
 
-      DEBUG.log("Fetching accounts...");
-      const accounts = await getRecordsByIds("accounts", accountIds);
+    DEBUG.log("Fetching accounts...");
+    const accounts = await getRecordsByIds("accounts", accountIds);
 
-      DEBUG.log("Fetching project personal data...");
-      const projectPersonals = await getRecordsByIds("personal", projectPersonalIds);
+    DEBUG.log("Fetching project personal data...");
+    const projectPersonals = await getRecordsByIds("personal", projectPersonalIds);
 
-      const personalData =
-        projectPersonals.length > 0
-          ? projectPersonals[0].fields
-          : personals.length > 0
-          ? personals[0].fields
-          : {};
+    const personalData =
+      projectPersonals.length > 0
+        ? projectPersonals[0].fields
+        : personals.length > 0
+        ? personals[0].fields
+        : {};
 
-      const clientInfo = clients.length > 0 ? clients[0].fields : {};
-      const nomeCliente = clientInfo["Nome e cognome / Ragione sociale"] || "N/A";
-      const indirizzo = clientInfo["indirizzo"] || "N/A";
-      const civico = clientInfo["civico"] || "N/A";
-      const cap = clientInfo["CAP"] || "N/A";
-      const comune = clientInfo["comune"] || "N/A";
-      const provincia = clientInfo["provincia"] || "N/A";
-      const paese = clientInfo["paese"] || "N/A";
-      const piva = clientInfo["p. IVA"] || "N/A";
+    const clientInfo = clients.length > 0 ? clients[0].fields : {};
+    const nomeCliente = clientInfo["Nome e cognome / Ragione sociale"] || "N/A";
+    const indirizzo = clientInfo["indirizzo"] || "N/A";
+    const civico = clientInfo["civico"] || "N/A";
+    const cap = clientInfo["CAP"] || "N/A";
+    const comune = clientInfo["comune"] || "N/A";
+    const provincia = clientInfo["provincia"] || "N/A";
+    const paese = clientInfo["paese"] || "N/A";
+    const piva = clientInfo["p. IVA"] || "N/A";
 
-      const progetto = fields["progetto"] || "N/A";
-      const oggetto = fields["oggetto"] || "N/A";
-      const progettoLordo = fields["lordo"] || "N/A";
-      const tempiDiConsegna = fields["tempi di consegna"] || "N/A";
-      const condizioniDiPagamento = fields["condizioni di pagamento"] || "N/A";
-      const lordoCosti = fields["lordo + costi"] || "N/A";
-      const costiAnnuali = fields["costi annuali"] || "N/A";
-      const migliorPrezzo = fields["miglior prezzo"] || "N/A";
-      const scontistica = fields["scontistica"] || "N/A";
+    const progetto = fields["progetto"] || "N/A";
+    const oggetto = fields["oggetto"] || "N/A";
+    const progettoLordo = fields["lordo"] || "N/A";
+    const tempiDiConsegna = fields["tempi di consegna"] || "N/A";
+    const condizioniDiPagamento = fields["condizioni di pagamento"] || "N/A";
+    const lordoCosti = fields["lordo + costi"] || "N/A";
+    const costiAnnuali = fields["costi annuali"] || "N/A";
+    const migliorPrezzo = fields["miglior prezzo"] || "N/A";
+    const scontistica = fields["scontistica"] || "N/A";
 
-      const anticipoPerc = fields["anticipo perc"] || "N/A";
-      const anticipo = fields["anticipo"] || "N/A";
+    const anticipoPerc = fields["anticipo perc"] || "N/A";
+    const anticipo = fields["anticipo"] || "N/A";
 
-      // Create template data object
-      const templateData = {
-        personalData,
-        nomeCliente,
-        indirizzo,
-        civico,
-        cap,
-        comune,
-        provincia,
-        paese,
-        piva,
-        progetto,
-        oggetto,
-        progettoLordo,
-        migliorPrezzo,
-        scontistica,
-        costiAnnuali,
-        lordoCosti,
-        tempiDiConsegna,
-        condizioniDiPagamento,
-        anticipoPerc,  
-        anticipo,     
-        tasks,
-        accounts,
+    // Create template data object
+    const templateData = {
+      personalData,
+      nomeCliente,
+      indirizzo,
+      civico,
+      cap,
+      comune,
+      provincia,
+      paese,
+      piva,
+      progetto,
+      oggetto,
+      progettoLordo,
+      migliorPrezzo,
+      scontistica,
+      costiAnnuali,
+      lordoCosti,
+      tempiDiConsegna,
+      condizioniDiPagamento,
+      anticipoPerc,  
+      anticipo,     
+      tasks,
+      accounts,
+    };
+
+    // Save template data for debugging
+    DEBUG.saveToFile(`${textDomain}_template_data.json`, templateData, true);
+
+    DEBUG.log("Compiling HTML template...");
+    const htmlContent = populateTemplate(templateHtml, templateData);
+    
+    // Use a safer way to get the domain for the filename
+    const baseFilename = `preventivo_${fields["text domain"] || textDomain}`;
+    DEBUG.log(`Starting PDF generation: ${baseFilename}`);
+
+    const success = await generatePDF(htmlContent, baseFilename);
+    
+    if (success) {
+      console.log(`✅ PDF successfully generated: ${baseFilename}.pdf`);
+      return {
+        success: true,
+        message: `PDF successfully generated: ${baseFilename}.pdf`,
+        filename: baseFilename
       };
+    } else {
+      console.error(`❌ Error generating PDF: ${baseFilename}.pdf`);
+      return {
+        success: false,
+        message: `Error generating PDF: ${baseFilename}.pdf`,
+        filename: null
+      };
+    }
+  } catch (error) {
+    DEBUG.error("Error during execution", error);
+    return {
+      success: false,
+      message: `Error: ${error.message}`,
+      filename: null
+    };
+  }
+}
 
-      // Save template data for debugging
-      DEBUG.saveToFile(`${textDomain}_template_data.json`, templateData, true);
+// Function to run the application directly when executed
+async function main() {
+  try {
+    DEBUG.log("Starting application...");
+    
+    const textDomain = process.env.DEFAULT_TEXT_DOMAIN || "casawa";
 
-      DEBUG.log("Compiling HTML template...");
-      const htmlContent = populateTemplate(templateHtml, templateData);
-
-      // If accounts is still empty, try fetching all accounts and filter manually
-      if (accounts.length === 0) {
-        DEBUG.log("Accounts array is empty. Trying alternative approach to fetch accounts...");
-        
-        try {
-          // Get all accounts and then filter by project
-          const allAccounts = await base('accounts')
-            .select({
-              filterByFormula: `AND(progetto='${project.id}', OR(stato='attivo', stato='proposta'))`
-            })
-            .all();
-            
-          if (allAccounts && allAccounts.length > 0) {
-            DEBUG.log(`Found ${allAccounts.length} accounts linked to project by query`);
-            accounts = allAccounts.map(record => ({
-              id: record.id,
-              fields: record.fields
-            }));
-          } else {
-            DEBUG.log("No accounts found by alternative approach either");
-          }
-        } catch (error) {
-          DEBUG.error("Error in alternative accounts fetch", error);
-        }
-      }
-      
-      // Log accounts status for debugging
-      DEBUG.log(`Final accounts count: ${accounts.length}`);
-      if (accounts.length > 0) {
-        DEBUG.log(`First account: ${JSON.stringify(accounts[0], null, 2)}`);
-      }
-      
-      // Use a safer way to get the domain for the filename
-      const baseFilename = `preventivo_${fields["text domain"] || textDomain}`;
-      DEBUG.log(`Starting PDF generation: ${baseFilename}`);
-
-      const success = await generatePDF(htmlContent, baseFilename);
-      if (success) {
-        console.log(`✅ PDF successfully generated: ${baseFilename}.pdf`);
-      } else {
-        console.error(`❌ Error generating PDF: ${baseFilename}.pdf`);
-      }
+    const result = await generatePreventivo(textDomain);
+    
+    if (result.success) {
+      console.log(`✅ ${result.message}`);
+    } else {
+      console.error(`❌ ${result.message}`);
     }
 
     DEBUG.log("Processing completed.");
@@ -607,5 +608,12 @@ async function main() {
   }
 }
 
-// Run the application
-main();
+// Run the application if executed directly
+if (require.main === module) {
+  main();
+}
+
+// Export functions for server.js to use
+module.exports = {
+  generatePreventivo
+};
