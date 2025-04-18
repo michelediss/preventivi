@@ -1,0 +1,15 @@
+{
+    "name": "preventivi-generator",
+    "version": "1.0.0",
+    "description": "Generatore di preventivi",
+    "main": "app.js",
+    "dependencies": {
+      "airtable": "^0.11.4",
+      "puppeteer": "^19.0.0",
+      "path": "^0.12.7",
+      "fs": "0.0.1-security"
+    },
+    "scripts": {
+      "start": "node app.js"
+    }
+  }

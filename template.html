@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Preventivo di Spesa</title>
+    <style>
+      @page {
+        margin-top: 20mm;
+        margin-right: 15mm;
+        margin-bottom: 30mm;
+        margin-left: 15mm;
+      }
+
+      body {
+        font-family: "Roboto", sans-serif;
+        background-color: #ffffff;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        font-family: "Montserrat", sans-serif;
+        text-transform: capitalize;
+      }
+
+      .text-xs {
+        font-size: 0.65rem !important;
+        line-height: 1 !important;
+      }
+    </style>
+  </head>
+
+  <body class="bg-white text-slate-600">
+    <div id="container" class="container mx-auto max-w-4xl px-8 py-0">
+      <section id="intestazione" class="bg-slate-100 p-6">
+        <!-- Header -->
+        <header
+          id="header"
+          class="grid grid-cols-2 gap-4 pb-4 px-4 items-baseline"
+        >
+          <div class="text-start">
+            <h3 id="progettoTitolo" class="text-5xl font-bold lowercase">
+              {{progettoTitolo}}
+            </h3>
+          </div>
+          <div class="text-end mt-2">
+            <h1 id="title" class="text-lg font-bold uppercase text-end">
+              Preventivo di Spesa
+            </h1>
+          </div>
+        </header>
+
+        <!-- Informazioni anagrafiche -->
+        <div id="anagrafiche" class="grid grid-cols-3 gap-8">
+          <!-- Removed fornitore section from here -->
+          <div id="cliente" class="p-4">
+            <h2 class="text-lg font-semibold mb-2">Cliente</h2>
+            <p id="clienteNome" class="text-sm mb-2">{{clienteNome}}</p>
+            <p id="clienteIndirizzo" class="text-sm mb-0">
+              {{clienteIndirizzo}}
+            </p>
+            <p id="clienteComune" class="text-sm">{{clienteComune}}</p>
+            <p id="clientePiva" class="text-sm mt-2">
+              <span class="text-xs">p.IVA </span> {{clientePiva}}
+            </p>
+          </div>
+          <div id="fornitore" class="p-4">
+            <h2 class="text-lg font-semibold mb-2">Fornitore</h2>
+            <p id="fornitoreNome" class="text-sm mb-2">{{fornitoreNome}}</p>
+            <p id="fornitoreIndirizzo" class="text-sm mb-0">
+              {{fornitoreIndirizzo}}
+            </p>
+            <p id="fornitoreComune" class="text-sm mb-0">{{fornitoreComune}}</p>
+            <p id="fornitorePiva" class="text-sm mt-2">
+              <span class="text-xs">p.IVA </span> {{fornitorePiva}}
+            </p>
+          </div>
+          <!-- Cliente -->
+          <div
+            id="info"
+            class="p-4 text-end flex flex-wrap flex-col justify-end"
+          >
+            <p class="text-xs uppercase mb-2">preventivo n. <span class="font-semibold">6</span></p>
+            <p class="text-xs uppercase mb-2">data di emissione</p>
+            <p class="text-xs uppercase mb-2">valido fino al</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Informazioni Progetto -->
+      <section id="progettoInfo" class="pt-12 px-6 pb-6">
+        <h2 class="text-2xl font-semibold mb-1 uppercase">
+          1. Descrizione sintetica del progetto
+        </h2>
+        <div id="progettoDettagli" class="space-y-5">
+          <p id="progettoOggetto" class="text-base mb-3">{{progettoOggetto}}</p>
+
+          <div
+            id="progettoCosti"
+            class="my-6 p-6 bg-slate-100 grid grid-cols-2 gap-4 p-4"
+          >
+            <p id="costoSviluppo" class="text-sm uppercase">
+              Lavorazioni una tantum<br />
+              <span class="text-2xl font-semibold">€ {{costoSviluppo}}</span>
+            </p>
+            <p
+              id="costoRicorrente"
+              class="text-sm uppercase border-l border-slate-300 px-4"
+            >
+              Costi annuali ricorrenti<br />
+              <span class="text-2xl font-semibold">€ {{costoRicorrente}}</span>
+            </p>
+          </div>
+
+          <div class="p-6 bg-slate-700 grid grid-cols-2 gap-4">
+            <div>
+              <p id="costoTotale" class="text-sm uppercase text-slate-100">
+                Importo totale:
+                <span
+                  class="text-2xl font-semibold line-through decoration-slate-400"
+                >
+                  € {{costoTotale}}
+                </span>
+              </p>
+              <p id="scontistica" class="text-sm uppercase text-slate-100">
+                Scontistica:
+                <span class="text-2xl font-semibold"> € {{scontistica}}</span>
+              </p>
+            </div>
+
+            <p
+              id="migliorPrezzo"
+              class="text-xl uppercase text-slate-100 py-2 px-4 text-start border-l border-slate-500"
+            >
+              Miglior prezzo:
+              <span class="text-3xl font-semibold">€ {{migliorPrezzo}}</span>
+            </p>
+          </div>
+
+          <p id="tempiConsegna" class="text-lg">{{tempiConsegna}}</p>
+          <p id="condizioniPagamento" class="text-lg">
+            {{condizioniPagamento}}
+          </p>
+        </div>
+      </section>
+
+      <!-- Lavorazioni Tecniche & Implementazione -->
+      <section id="lavorazioni" class="p-6">
+        <h2 class="text-2xl font-semibold mb-1 uppercase">
+          2. Lavorazioni tecniche &amp; implementazione
+        </h2>
+        <p id="sottoscrizioniDescrizione" class="text-base mb-4">
+          In questa sezione sono elencate le attività professionali e i servizi
+          correlati finalizzati alla realizzazione di prodotti e soluzioni
+          digitali su committenza.
+        </p>
+        <div class="overflow-x-auto">
+          <table id="lavorazioniTabella" class="min-w-full border-collapse">
+            <thead>
+              <tr>
+                <th class="p-4 py-2 text-left text-xs font-semibold uppercase">
+                  <p class="font-bold">Attività</p>
+                </th>
+                <th class="p-4 py-2 text-left text-xs font-semibold uppercase">
+                  <p class="font-bold">Costo una tantum</p>
+                </th>
+              </tr>
+            </thead>
+            <tbody id="lavorazioniCorpo">
+              <!-- Righe dinamiche -->
+              {{lavorazioniCorpo}}
+            </tbody>
+          </table>
+        </div>
+        <div
+          id="lavorazioniSubtotale"
+          class="mt-6 text-left border-t py-2 border-slate-400"
+        >
+          {{lavorazioniSubtotale}}
+        </div>
+      </section>
+
+      <!-- Sottoscrizioni & Costi Operativi -->
+      <section id="sottoscrizioni" class="p-6">
+        <h2 class="text-2xl font-semibold mb-1 uppercase">
+          3. Sottoscrizioni &amp; Costi Operativi
+        </h2>
+        <p id="sottoscrizioniDescrizione" class="text-base mb-4">
+          In questa sezione sono elencati i costi ricorrenti per servizi esterni
+          necessari al funzionamento e alla manutenzione della piattaforma
+          digitale e dei relativi sistemi informativi.
+        </p>
+        <div class="overflow-x-auto">
+          <table id="sottoscrizioniTabella" class="min-w-full border-collapse">
+            <thead>
+              <tr>
+                <th class="px-4 py-2 text-left text-xs font-medium uppercase">
+                  <p class="font-bold">Servizio</p>
+                </th>
+                <th class="px-4 py-2 text-left text-xs font-medium uppercase">
+                  <p class="font-bold">Tipologia</p>
+                </th>
+                <th class="px-4 py-2 text-left text-xs font-medium uppercase">
+                  <p class="font-bold">Descrizione</p>
+                </th>
+                <th class="px-4 py-2 text-left text-xs font-medium uppercase">
+                  <p class="font-bold">Costo Annuale</p>
+                </th>
+              </tr>
+            </thead>
+            <tbody id="sottoscrizioniCorpo">
+              <!-- Righe dinamiche -->
+              {{sottoscrizioniCorpo}}
+            </tbody>
+          </table>
+        </div>
+        <div
+          id="sottoscrizioniSubtotale"
+          class="mt-6 text-left border-t py-2 border-slate-400"
+        >
+          {{sottoscrizioniSubtotale}}
+        </div>
+      </section>
+
+      <!-- Modifica alla sezione footer usando placeholder diversi -->
+      <section
+        id="footer"
+        class="grid grid-cols-12 gap-4 p-4 mt-8 bg-slate-700 text-slate-200 pt-6"
+      >
+        <div id="footer-fornitore1" class="col-span-4 p-4">
+          <h2
+            id="footer-fornitoreNome"
+            class="text-lg mb-2 uppercase font-bold"
+          >
+            {{footer-fornitoreNome}}
+          </h2>
+          <p id="footer-fornitoreMail" class="text-xs mb-1">
+            {{footer-fornitoreMail}}
+          </p>
+          <p id="footer-fornitoreSitoWeb" class="text-xs">
+            {{footer-fornitoreSitoWeb}}
+          </p>
+        </div>
+        <div id="footer-fornitore2" class="col-span-3 p-4">
+          <p id="footer-fornitoreIndirizzo" class="text-sm mb-0">
+            {{footer-fornitoreIndirizzo}}
+          </p>
+          <p id="footer-fornitoreComune" class="text-sm mb-0">
+            {{footer-fornitoreComune}}
+          </p>
+          <p id="footer-fornitorePaese" class="text-sm mb-2">
+            {{footer-fornitorePaese}}
+          </p>
+        </div>
+        <div id="footer-fornitore3" class="col-span-5 p-4">
+          <p id="footer-fornitorePiva" class="text-sm">
+            <span class="text-xs">p.IVA</span> {{footer-fornitorePiva}}
+          </p>
+          <p id="footer-fornitoreIban" class="text-sm">
+            <span class="text-xs uppercase">iban</span> {{footer-fornitoreIban}}
+          </p>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>
