@@ -6,7 +6,7 @@ const url = require("url");
 
 const chromium = require("@sparticuz/chromium");
 const puppeteer = require("puppeteer-core");
-const { buildPreventivoHtml } = require("./app");
+const { buildPreventivoHtml } = require("../app");
 
 // Genera un Buffer PDF da HTML
 async function renderPdfBuffer(html) {
