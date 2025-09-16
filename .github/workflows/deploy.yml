@@ -2,7 +2,7 @@ name: Deploy to cPanel
 
 on:
   push:
-    branches: [ "master" ]   # o "master" se il tuo branch è quello
+    branches: [ "master" ]
 
 jobs:
   deploy:
@@ -19,8 +19,8 @@ jobs:
           password: ${{ secrets.CPANEL_PASSWORD }}
           protocol: ftps
           port: 21
-          local-dir: ./           # <-- termina con /
-          server-dir: /preventivi.michelepaolino.com/   # <-- termina con /
+          local-dir: ./
+          server-dir: ${{ secrets.CPANEL_APP_DIR }}/
           dangerous-clean-slate: true
           exclude: |
             **/.git**
@@ -28,3 +28,4 @@ jobs:
             **/node_modules/**
             **/.env*
             **/debug_output/**
+            **/deployment/**
