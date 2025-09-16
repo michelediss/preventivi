@@ -2,7 +2,7 @@ name: Deploy to cPanel
 
 on:
   push:
-    branches: [ "master" ]   # usa "main" se il branch è main
+    branches: [ "master" ]  # o "main"
 
 jobs:
   deploy:
@@ -23,7 +23,7 @@ jobs:
           password: ${{ secrets.CPANEL_PASSWORD }}
           protocol: ftps
           port: 21
-          local-dir: ./
+          local-dir: ./                       # repo piatto
           server-dir: /preventivi.michelepaolino.com/
           dangerous-clean-slate: true
           exclude: |
@@ -32,4 +32,4 @@ jobs:
             **/node_modules/**
             **/.env*
             **/debug_output/**
-            preventivi.michelepaolino.com/**   # evita upload di una cartella omonima, se per caso esiste
+            **/deployment/**
