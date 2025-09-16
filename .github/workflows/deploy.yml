@@ -2,29 +2,18 @@ name: Deploy to cPanel
 
 on:
   push:
-    branches: [ "master" ]   # usa "main" se serve
+    branches: [ "master" ]   # usa "main" se il branch è main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Debug repo layout
+      - name: Debug layout
         run: |
           pwd
           ls -la
-          [ -d preventivi.michelepaolino.com ] && ls -la preventivi.michelepaolino.com || true
-
-      - name: Pick local-dir
-        id: pickdir
-        run: |
-          if [ -d "preventivi.michelepaolino.com" ]; then
-            echo "local_dir=preventivi.michelepaolino.com/" >> $GITHUB_OUTPUT
-          else
-            echo "local_dir=./" >> $GITHUB_OUTPUT
-          fi
 
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -34,7 +23,7 @@ jobs:
           password: ${{ secrets.CPANEL_PASSWORD }}
           protocol: ftps
           port: 21
-          local-dir: ${{ steps.pickdir.outputs.local_dir }}
+          local-dir: ./
           server-dir: /preventivi.michelepaolino.com/
           dangerous-clean-slate: true
           exclude: |
@@ -43,4 +32,4 @@ jobs:
             **/node_modules/**
             **/.env*
             **/debug_output/**
-            **/deployment/**
+            preventivi.michelepaolino.com/**   # evita upload di una cartella omonima, se per caso esiste
