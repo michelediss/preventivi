@@ -2,7 +2,7 @@ name: Deploy to cPanel
 
 on:
   push:
-    branches: [ "master" ]   # usa "master" se il tuo branch è master
+    branches: [ "master" ]   # o "master" se il tuo branch è quello
 
 jobs:
   deploy:
@@ -10,11 +10,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Setup Node (opzionale)
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
 
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -24,13 +19,12 @@ jobs:
           password: ${{ secrets.CPANEL_PASSWORD }}
           protocol: ftps
           port: 21
-          local-dir: .
-          server-dir: ${{ secrets.CPANEL_APP_DIR }}  # es. /preventivi.michelepaolino.com/
+          local-dir: ./           # <-- termina con /
+          server-dir: /preventivi.michelepaolino.com/   # <-- termina con /
           dangerous-clean-slate: true
           exclude: |
             **/.git**
             **/.github/**
             **/node_modules/**
-            **/debug_output/**
             **/.env*
-            **/deployment/**
+            **/debug_output/**
