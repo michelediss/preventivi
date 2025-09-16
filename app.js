@@ -106,7 +106,7 @@ const DEBUG = {
 DEBUG.init();
 
 // Leggi il template HTML dal file
-const templateHtml = fs.readFileSync("template.html", "utf8");
+const templateHtml = fs.readFileSync(path.join(__dirname, "template.html"), "utf8");
 
 // Configurazione API Airtable usando variabili d'ambiente
 const BASE_ID = process.env.AIRTABLE_BASE_ID || "appI4MDJQWhoZd8EA";
@@ -618,7 +618,16 @@ if (require.main === module) {
   main();
 }
 
+async function buildPreventivoHtml(textDomain) {
+  // 1) leggi dati Airtable
+  // 2) costruisci templateData
+  // 3) genera htmlContent con il template
+  // 4) calcola baseFilename
+  return { html: htmlContent, filename: baseFilename };
+}
+
 // Export functions for server.js to use
 module.exports = {
-  generatePreventivo
+  generatePreventivo,
+  buildPreventivoHtml
 };

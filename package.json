@@ -1,37 +1,17 @@
 {
   "name": "preventivi-generator",
+  "private": true,
   "version": "1.0.0",
-  "description": "Generatore di preventivi",
-  "main": "server.js",
-  "dependencies": {
-    "airtable": "^0.11.4",
-    "puppeteer": "^19.0.0",
-    "path": "^0.12.7",
-    "fs": "0.0.1-security",
-    "dotenv": "^16.0.3"
-  },
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
-    "generate": "node app.js",
-    "test": "echo \"No tests specified\" && exit 0"
+    "dev": "vercel dev",
+    "build": "echo skip",
+    "start": "node server.js"
   },
-  "devDependencies": {
-    "nodemon": "^2.0.22"
+  "dependencies": {
+    "airtable": "^0.11.6",
+    "dotenv": "^16.4.5",
+    "@sparticuz/chromium": "^126.0.0",
+    "puppeteer-core": "^22.10.0"
   },
-  "engines": {
-    "node": ">=16.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/yourusername/your-repo-name.git"
-  },
-  "keywords": [
-    "preventivi",
-    "pdf",
-    "airtable",
-    "puppeteer"
-  ],
-  "author": "Michele Paolino",
-  "license": "ISC"
+  "engines": { "node": ">=18" }
 }
