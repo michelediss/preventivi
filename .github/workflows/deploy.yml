@@ -2,18 +2,32 @@ name: Deploy to cPanel
 
 on:
   push:
-    branches: [ "master" ]  # o "main"
+    branches: [ "master" ]  # usa "main" se serve
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Debug layout
+      - name: Debug repo layout
         run: |
           pwd
           ls -la
+
+      - name: Prepare upload dir
+        run: |
+          rm -rf .upload
+          mkdir -p .upload
+          rsync -a ./ .upload/ \
+            --exclude ".git" \
+            --exclude ".github" \
+            --exclude "node_modules" \
+            --exclude "debug_output" \
+            --exclude ".env*" \
+            --exclude "deployment" \
+            --exclude "preventivi.michelepaolino.com"   # evita la ricreazione se comparisse
 
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -23,13 +37,14 @@ jobs:
           password: ${{ secrets.CPANEL_PASSWORD }}
           protocol: ftps
           port: 21
-          local-dir: ./                       # repo piatto
+          local-dir: .upload/
           server-dir: /preventivi.michelepaolino.com/
           dangerous-clean-slate: true
           exclude: |
             **/.git**
             **/.github/**
             **/node_modules/**
-            **/.env*
             **/debug_output/**
+            **/.env*
             **/deployment/**
+            preventivi.michelepaolino.com/**
