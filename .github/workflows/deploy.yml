@@ -2,14 +2,13 @@ name: Deploy to cPanel
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master" ]  # usa "main" se il branch è main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -19,8 +18,8 @@ jobs:
           password: ${{ secrets.CPANEL_PASSWORD }}
           protocol: ftps
           port: 21
-          local-dir: ./
-          server-dir: ${{ secrets.CPANEL_APP_DIR }}/
+          local-dir: preventivi.michelepaolino.com/     # <— CONTENUTI della cartella
+          server-dir: /preventivi.michelepaolino.com/   # <— cartella del sottodominio
           dangerous-clean-slate: true
           exclude: |
             **/.git**
@@ -28,4 +27,3 @@ jobs:
             **/node_modules/**
             **/.env*
             **/debug_output/**
-            **/deployment/**
