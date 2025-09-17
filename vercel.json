@@ -9,5 +9,6 @@
   },
   "routes": [
     { "src": "^/generate-pdf$", "dest": "/api/generate-pdf" }
-  ]
+  ],
+  "outputDirectory": "public"
 }
