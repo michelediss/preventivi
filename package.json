@@ -9,8 +9,8 @@
   "dependencies": {
     "airtable": "^0.11.6",
     "dotenv": "^16.4.5",
-    "@sparticuz/chromium": "^126.0.0",
-    "puppeteer-core": "^22.10.0"
+    "@sparticuz/chromium": "^132.0.0",
+    "puppeteer-core": "^24.1.1"
   },
-  "engines": { "node": ">=18" }
+  "engines": { "node": "18.x" }
 }
