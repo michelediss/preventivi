@@ -1,42 +1,41 @@
 // api/generate-pdf.js
-// Serverless function per Vercel: genera un PDF in streaming da HTML costruito da app.js
-
 const chromium = require("@sparticuz/chromium");
 const puppeteer = require("puppeteer-core");
 const { buildPreventivoHtml } = require("../app");
 
-// Renderizza l'HTML in un Buffer PDF
+function sanitizeFilename(name) {
+  return String(name)
+    .replace(/[\r\n]+/g, " ")
+    .replace(/[^\p{L}\p{N}\.\-_]+/gu, "_")
+    .slice(0, 120) || "preventivo";
+}
+
 async function renderPdfBuffer(html) {
-  const executablePath = await chromium.executablePath();
   const browser = await puppeteer.launch({
     args: chromium.args,
     defaultViewport: chromium.defaultViewport,
-    executablePath,
+    executablePath: await chromium.executablePath(),
     headless: chromium.headless
   });
 
   try {
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "networkidle0" });
-
-    // PDF A4, margini zero, sfondi inclusi
+    await page.emulateMediaType("screen");
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,
       margin: { top: "0", right: "0", bottom: "0", left: "0" }
     });
-
-    return pdf;
+    // garantisci Buffer
+    return Buffer.isBuffer(pdf) ? pdf : Buffer.from(pdf);
   } finally {
     await browser.close();
   }
 }
 
-// Handler serverless
 module.exports = async (req, res) => {
   try {
-    // Accetta ?domain=, ?textDomain= o il primo key-value della query
-    // Supporta anche POST JSON: { "domain": "..." }
     const q = req.query || {};
     const body = req.body || {};
     const domain =
@@ -47,25 +46,27 @@ module.exports = async (req, res) => {
       "casawa";
 
     const { html, filename } = await buildPreventivoHtml(domain);
-    const pdf = await renderPdfBuffer(html);
+    const pdfBuffer = await renderPdfBuffer(html);
 
-    // Inline per default. Usa ?download=1 per forzare "attachment".
-    const download = String(q.download || "") === "1";
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader(
-      "Content-Disposition",
-      `${download ? "attachment" : "inline"}; filename="${filename}.pdf"`
-    );
-    res.setHeader("Cache-Control", "no-store");
+    const safeFilename = sanitizeFilename(filename) + ".pdf";
+    const headers = {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `inline; filename="${safeFilename}"`,
+      "Cache-Control": "no-store",
+      "Content-Length": String(pdfBuffer.length)
+    };
 
-    return res.status(200).send(pdf);
+    res.writeHead(200, headers);
+    res.end(pdfBuffer);
   } catch (err) {
     console.error("PDF ERROR", err);
-    return res.status(500).json({
+    res.statusCode = 500;
+    res.setHeader("Content-Type", "application/json");
+    res.end(JSON.stringify({
       message: "Error generating PDF",
       error: err?.message || "Unknown",
       code: err?.code || "FUNCTION_INVOCATION_FAILED",
       when: new Date().toISOString()
-    });
+    }));
   }
 };
