@@ -1,14 +1,11 @@
-// server.js (per Vercel: sposta questo file in api/generate-pdf.js)
-const path = require("path");
-const fs = require("fs");
-const http = require("http");
-const url = require("url");
+// api/generate-pdf.js
+// Serverless function per Vercel: genera un PDF in streaming da HTML costruito da app.js
 
 const chromium = require("@sparticuz/chromium");
 const puppeteer = require("puppeteer-core");
 const { buildPreventivoHtml } = require("../app");
 
-// Genera un Buffer PDF da HTML
+// Renderizza l'HTML in un Buffer PDF
 async function renderPdfBuffer(html) {
   const executablePath = await chromium.executablePath();
   const browser = await puppeteer.launch({
@@ -17,23 +14,33 @@ async function renderPdfBuffer(html) {
     executablePath,
     headless: chromium.headless
   });
-  const page = await browser.newPage();
-  await page.setContent(html, { waitUntil: "networkidle0" });
-  const pdf = await page.pdf({
-    format: "A4",
-    printBackground: true,
-    margin: { top: "0", right: "0", bottom: "0", left: "0" }
-  });
-  await browser.close();
-  return pdf;
+
+  try {
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: "networkidle0" });
+
+    // PDF A4, margini zero, sfondi inclusi
+    const pdf = await page.pdf({
+      format: "A4",
+      printBackground: true,
+      margin: { top: "0", right: "0", bottom: "0", left: "0" }
+    });
+
+    return pdf;
+  } finally {
+    await browser.close();
+  }
 }
 
-// Handler serverless compatibile con Vercel
-async function handler(req, res) {
+// Handler serverless
+module.exports = async (req, res) => {
   try {
-    // Supporta ?domain= e anche ?casawa
+    // Accetta ?domain=, ?textDomain= o il primo key-value della query
+    // Supporta anche POST JSON: { "domain": "..." }
     const q = req.query || {};
+    const body = req.body || {};
     const domain =
+      body.domain ||
       q.domain ||
       q.textDomain ||
       Object.keys(q)[0] ||
@@ -43,52 +50,23 @@ async function handler(req, res) {
     const { html, filename } = await buildPreventivoHtml(domain);
     const pdf = await renderPdfBuffer(html);
 
+    // Inline per default. Usa ?download=1 per forzare "attachment".
+    const download = String(q.download || "") === "1";
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `inline; filename="${filename}.pdf"`);
-    res.statusCode = 200;
-    res.end(pdf);
+    res.setHeader(
+      "Content-Disposition",
+      `${download ? "attachment" : "inline"}; filename="${filename}.pdf"`
+    );
+    res.setHeader("Cache-Control", "no-store");
+
+    return res.status(200).send(pdf);
   } catch (err) {
-    console.error(err);
-    res.statusCode = 500;
-    res.setHeader("Content-Type", "application/json");
-    res.end(JSON.stringify({
+    console.error("PDF ERROR", err);
+    return res.status(500).json({
       message: "Error generating PDF",
-      error: err.message,
-      timestamp: new Date().toISOString()
-    }));
+      error: err?.message || "Unknown",
+      code: err?.code || "FUNCTION_INVOCATION_FAILED",
+      when: new Date().toISOString()
+    });
   }
-}
-
-module.exports = handler;
-
-// Avvio locale opzionale: `node server.js`
-if (require.main === module) {
-  const PORT = process.env.PORT || 3000;
-  const server = http.createServer(async (req, res) => {
-    const parsed = url.parse(req.url, true);
-
-    if (parsed.pathname === "/" || parsed.pathname === "/index.html") {
-      fs.readFile(path.join(__dirname, "index.html"), (err, content) => {
-        if (err) { res.statusCode = 500; return res.end("Errore index.html"); }
-        res.setHeader("Content-Type", "text/html");
-        res.end(content);
-      });
-      return;
-    }
-
-    if (parsed.pathname === "/generate-pdf") {
-      // Adatta req per riusare l'handler
-      req.query = parsed.query;
-      await handler(req, res);
-      return;
-    }
-
-    res.statusCode = 404;
-    res.end("Not found");
-  });
-
-  server.listen(PORT, () => {
-    console.log(`Dev server http://localhost:${PORT}`);
-    console.log(`PDF: http://localhost:${PORT}/generate-pdf?domain=casawa`);
-  });
-}
+};
