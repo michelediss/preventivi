@@ -1,14 +1,18 @@
 {
-  "version": 2,
-  "functions": {
-    "api/generate-pdf.js": {
-      "memory": 1024,
-      "maxDuration": 60,
-      "includeFiles": "template.html"
-    }
+  "name": "preventivi-generator",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "echo skip",
+    "dev": "vercel dev"
   },
-  "routes": [
-    { "src": "^/generate-pdf$", "dest": "/api/generate-pdf" }
-  ],
-  "outputDirectory": "public"
+  "dependencies": {
+    "airtable": "^0.11.6",
+    "dotenv": "^16.4.5",
+    "@sparticuz/chromium": "^133.0.0",
+    "puppeteer-core": "^24.1.1"
+  },
+  "engines": {
+    "node": "18.x"
+  }
 }

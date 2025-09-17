@@ -2,7 +2,6 @@
   "version": 2,
   "functions": {
     "api/generate-pdf.js": {
-      "runtime": "nodejs18.x",
       "memory": 1024,
       "maxDuration": 60,
       "includeFiles": "template.html"
