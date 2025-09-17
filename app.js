@@ -1,633 +1,308 @@
-// Load environment variables from .env file
-require('dotenv').config();
+// app.js — versione per Vercel: niente Puppeteer, solo HTML builder
+require("dotenv").config();
 
 const Airtable = require("airtable");
 const fs = require("fs");
 const path = require("path");
-const puppeteer = require("puppeteer");
 
-// ===================================================
-// DEBUG CONFIGURATION SECTION - EASY TO TOGGLE ON/OFF
-// ===================================================
+// -----------------------------
+// DEBUG (spento di default)
+// -----------------------------
 const DEBUG = {
-  enabled: process.env.DEBUG_ENABLED === 'true' || true,              // Master switch to enable/disable all debugging
-  saveFiles: process.env.DEBUG_SAVE_FILES === 'true' || true,            // Save debug files to disk
-  saveResponses: process.env.DEBUG_SAVE_RESPONSES === 'true' || true,        // Save API responses
-  saveTemplateData: process.env.DEBUG_SAVE_TEMPLATE_DATA === 'true' || true,     // Save template data
-  saveHtml: process.env.DEBUG_SAVE_HTML === 'true' || true,             // Save generated HTML
-  screenshot: process.env.DEBUG_SCREENSHOT === 'true' || true,           // Take screenshot during PDF generation
-  verboseLogging: process.env.DEBUG_VERBOSE_LOGGING === 'true' || true,       // Enable verbose console logging
-  
-  // Debug directory configuration
+  enabled: process.env.DEBUG_ENABLED === "true",
+  saveFiles: process.env.DEBUG_SAVE_FILES === "true",
+  saveResponses: process.env.DEBUG_SAVE_RESPONSES === "true",
+  saveTemplateData: process.env.DEBUG_SAVE_TEMPLATE_DATA === "true",
+  saveHtml: process.env.DEBUG_SAVE_HTML === "true",
+  verboseLogging: process.env.DEBUG_VERBOSE_LOGGING === "true",
   directory: path.join(__dirname, "debug_output"),
-  
-  // Initialize debug environment
-  init() {
-    if (!this.enabled) return;
-    
-    // Create debug directory if it doesn't exist
-    if (this.saveFiles && !fs.existsSync(this.directory)) {
+  _ensureDir() {
+    if (this.enabled && this.saveFiles && !fs.existsSync(this.directory)) {
       fs.mkdirSync(this.directory, { recursive: true });
-      this.log(`Debug directory created: ${this.directory}`);
     }
   },
-  
-  // Logging function
-  log(message) {
-    if (!this.enabled || !this.verboseLogging) return;
-    console.log(`[DEBUG] ${message}`);
+  log(msg) {
+    if (this.enabled && this.verboseLogging) console.log("[DEBUG]", msg);
   },
-  
-  // Error logging
-  error(message, error) {
-    if (!this.enabled) return;
-    console.error(`[ERROR] ${message}`, error);
-    
-    if (this.saveFiles) {
-      this.saveToFile("error_log.json", {
-        timestamp: new Date().toISOString(),
-        message: message,
-        error: {
-          message: error.message,
-          stack: error.stack,
-        },
-      }, true);
+  error(msg, err) {
+    console.error("[ERROR]", msg, err?.message);
+    if (this.enabled && this.saveFiles) {
+      this._ensureDir();
+      fs.writeFileSync(
+        path.join(this.directory, "error_log.json"),
+        JSON.stringify({
+          timestamp: new Date().toISOString(),
+          message: msg,
+          error: { message: err?.message, stack: err?.stack }
+        }, null, 2)
+      );
     }
   },
-  
-  // Save content to file
-  saveToFile(filename, content, isJson = false) {
-    if (!this.enabled || !this.saveFiles) return false;
-    
-    const filePath = path.join(this.directory, filename);
-    try {
-      if (isJson) {
-        fs.writeFileSync(filePath, JSON.stringify(content, null, 2));
-      } else {
-        fs.writeFileSync(filePath, content);
-      }
-      this.log(`File saved: ${filePath}`);
-      return true;
-    } catch (error) {
-      console.error(`Error saving file ${filename}:`, error);
-      return false;
-    }
-  },
-  
-  // Take screenshot during PDF generation
-  async takeScreenshot(page, baseFilename) {
-    if (!this.enabled || !this.screenshot) return;
-    
-    try {
-      await page.screenshot({
-        path: path.join(this.directory, `${baseFilename}_screenshot.png`),
-        fullPage: true,
-      });
-      this.log(`Screenshot saved: ${baseFilename}_screenshot.png`);
-    } catch (error) {
-      this.error(`Failed to take screenshot for ${baseFilename}`, error);
-    }
-  },
-  
-  // Save API response
-  saveResponse(name, data) {
-    if (!this.enabled || !this.saveResponses) return;
-    this.saveToFile(`${name}.json`, data, true);
-  },
-  
-  // Log page dimensions
-  logDimensions(dimensions) {
-    if (!this.enabled || !this.verboseLogging) return;
-    this.log(`Page dimensions: ${dimensions.width}x${dimensions.height}`);
+  saveToFile(filename, content, asJson = false) {
+    if (!(this.enabled && this.saveFiles)) return;
+    this._ensureDir();
+    const fp = path.join(this.directory, filename);
+    fs.writeFileSync(fp, asJson ? JSON.stringify(content, null, 2) : content);
   }
 };
 
-// Initialize debug environment
-DEBUG.init();
+// -----------------------------
+// Airtable init (lazy + safe)
+// -----------------------------
+let _airtableBase = null;
+function getAirtableBase() {
+  if (_airtableBase) return _airtableBase;
+  const BASE_ID = process.env.AIRTABLE_BASE_ID;
+  const TOKEN = process.env.AIRTABLE_API_KEY;
+  if (!BASE_ID || !TOKEN) {
+    throw new Error("AIRTABLE_BASE_ID o AIRTABLE_API_KEY mancanti");
+  }
+  Airtable.configure({ apiKey: TOKEN });
+  _airtableBase = Airtable.base(BASE_ID);
+  return _airtableBase;
+}
 
-// Leggi il template HTML dal file
-const templateHtml = fs.readFileSync(path.join(__dirname, "template.html"), "utf8");
+// -----------------------------
+// Template loader (con cache)
+// -----------------------------
+let _templateHtml = null;
+function loadTemplate() {
+  if (_templateHtml) return _templateHtml;
 
-// Configurazione API Airtable usando variabili d'ambiente
-const BASE_ID = process.env.AIRTABLE_BASE_ID || "appI4MDJQWhoZd8EA";
-const TOKEN = process.env.AIRTABLE_API_KEY || "patJApgGRy7CIodkT.058cabd6e2f225b589887a20fba5d6735dccb1151f160142b73d401a5253b9fd";
+  const candidates = [
+    path.join(__dirname, "template.html"),
+    path.join(process.cwd(), "template.html"),
+    "template.html"
+  ];
 
-// Inizializza Airtable
-Airtable.configure({ apiKey: TOKEN });
-const base = Airtable.base(BASE_ID);
+  for (const p of candidates) {
+    try {
+      _templateHtml = fs.readFileSync(p, "utf8");
+      DEBUG.log(`template.html letto da: ${p}`);
+      return _templateHtml;
+    } catch {}
+  }
 
-// ===================================================
-// API FUNCTIONS
-// ===================================================
+  throw new Error("template.html non trovato. Controlla vercel.json includeFiles e il percorso.");
+}
 
+// -----------------------------
+// Airtable helpers
+// -----------------------------
 async function getProjectByTextDomain(textDomain) {
-  DEBUG.log(`Fetching project with text domain: ${textDomain}`);
-  
+  DEBUG.log(`Cerco progetto: ${textDomain}`);
   try {
-    // Airtable.js .all() method returns a Promise that resolves to all records
-    const records = await base('progetti')
-      .select({
-        filterByFormula: `{text domain}='${textDomain}'`
-      })
+    const base = getAirtableBase();
+    const records = await base("progetti")
+      .select({ filterByFormula: `{text domain}='${textDomain}'` })
       .all();
-    
-    // Transform to match the previous format expected by the rest of the code
-    const formattedRecords = records.map(record => {
-      return {
-        id: record.id,
-        fields: record.fields
-      };
-    });
-    
-    const result = { records: formattedRecords };
-    DEBUG.saveResponse(`project_${textDomain}`, result);
+    const result = { records: records.map(r => ({ id: r.id, fields: r.fields })) };
+    if (DEBUG.saveResponses) DEBUG.saveToFile(`project_${textDomain}.json`, result, true);
     return result;
-  } catch (error) {
-    DEBUG.error(`Error fetching project: ${textDomain}`, error);
-    return null;
+  } catch (err) {
+    DEBUG.error("Errore getProjectByTextDomain", err);
+    return { records: [] };
   }
 }
 
 async function getRecordsByIds(table, recordIds) {
-  // Check if recordIds is an array and not empty
-  if (!recordIds || !Array.isArray(recordIds) || recordIds.length === 0) {
-    DEBUG.log(`No valid record IDs provided for table: ${table}`);
-    return [];
-  }
-  
-  DEBUG.log(`Fetching ${recordIds.length} records from '${table}'`);
-  
+  if (!Array.isArray(recordIds) || recordIds.length === 0) return [];
   try {
-    // Alternative approach: Use filterByFormula instead of individual finds
-    // This is more efficient for multiple records
-    const formulaParts = recordIds.map(id => `RECORD_ID()='${id}'`);
-    const formula = formulaParts.length > 1 ? `OR(${formulaParts.join(",")})` : formulaParts[0];
-    
-    DEBUG.log(`Using formula: ${formula}`);
-    
-    const records = await base(table)
-      .select({
-        filterByFormula: formula
-      })
-      .all();
-    
-    // Format records to match expected structure
-    const validRecords = records.map(record => ({
-      id: record.id,
-      fields: record.fields
-    }));
-    
-    DEBUG.log(`Successfully fetched ${validRecords.length} records from '${table}'`);
-    DEBUG.saveResponse(`${table}_records`, validRecords);
-    return validRecords;
-  } catch (error) {
-    DEBUG.error(`Error fetching records from ${table}`, error);
+    const base = getAirtableBase();
+    const parts = recordIds.map(id => `RECORD_ID()='${id}'`);
+    const formula = parts.length > 1 ? `OR(${parts.join(",")})` : parts[0];
+    const records = await base(table).select({ filterByFormula: formula }).all();
+    const out = records.map(r => ({ id: r.id, fields: r.fields }));
+    if (DEBUG.saveResponses) DEBUG.saveToFile(`${table}_records.json`, out, true);
+    return out;
+  } catch (err) {
+    DEBUG.error(`Errore getRecordsByIds(${table})`, err);
     return [];
   }
 }
 
 async function getAllRecords(table) {
-  DEBUG.log(`Fetching all records from '${table}'`);
-  
   try {
+    const base = getAirtableBase();
     const records = await base(table).select().all();
-    
-    // Format records to match expected structure
-    const formattedRecords = records.map(record => ({
-      id: record.id,
-      fields: record.fields
-    }));
-    
-    DEBUG.saveResponse(`all_${table}`, formattedRecords);
-    return formattedRecords;
-  } catch (error) {
-    DEBUG.error(`Error fetching all records from ${table}`, error);
+    const out = records.map(r => ({ id: r.id, fields: r.fields }));
+    if (DEBUG.saveResponses) DEBUG.saveToFile(`all_${table}.json`, out, true);
+    return out;
+  } catch (err) {
+    DEBUG.error(`Errore getAllRecords(${table})`, err);
     return [];
   }
 }
 
-// ===================================================
-// TEMPLATE POPULATION FUNCTIONS
-// ===================================================
-
+// -----------------------------
+// Template helpers
+// -----------------------------
 function formatPercentage(value) {
-  // Se il valore è "N/A", restituiscilo così com'è
   if (value === "N/A") return value;
-  
-  // Prova a convertire il valore in un numero
   const num = parseFloat(value);
-  
-  // Se non è un numero valido, restituisci il valore originale
   if (isNaN(num)) return value;
-  
-  // Se il valore è già formattato come percentuale (es. "25%"), restituiscilo così com'è
-  if (typeof value === 'string' && value.includes('%')) return value;
-  
-  // Se il valore è minore di 1, è probabile che sia già in formato decimale (es. 0.25)
-  if (num < 1) {
-    // Converti in percentuale moltiplicando per 100
-    return Math.round(num * 100) + '%';
-  } else {
-    // Se è già un numero intero o maggiore di 1, presumiamo che sia già una percentuale
-    return Math.round(num) + '%';
-  }
+  if (typeof value === "string" && value.includes("%")) return value;
+  return num < 1 ? Math.round(num * 100) + "%" : Math.round(num) + "%";
 }
 
 function populateTemplate(template, data) {
-  let populated = template;
-  
-  // Calcolo date per il preventivo
-  const oggi = new Date();
-  const dataEmissione = formatDate(oggi);
-  
-  // Data di validità: oggi + 30 giorni
-  const dataValidita = new Date(oggi);
-  dataValidita.setDate(dataValidita.getDate() + 30);
-  const dataValiditaFormattata = formatDate(dataValidita);
-  
-  // Funzione helper per formattare la data in formato italiano
-  function formatDate(date) {
-    const giorno = date.getDate();
-    const mesi = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 
-                 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
-    const mese = mesi[date.getMonth()];
-    const anno = date.getFullYear();
-    return `${giorno} ${mese} ${anno}`;
-  }
-  
-  // Sostituisci i segnaposto delle date nel template
-  populated = populated.replace('data di emissione</p>', `data di emissione: <span class="font-semibold">${dataEmissione}</span></p>`);
-  populated = populated.replace('valido fino al</p>', `valido fino al: <span class="font-semibold">${dataValiditaFormattata}</span></p>`);
-  
-  // Sostituzioni per i dati del fornitore
-  populated = populated.replace("{{fornitoreNome}}", data.personalData["nome e cognome"] || "N/A");
-  populated = populated.replace("{{fornitoreIndirizzo}}", `${data.personalData["indirizzo (domicilio)"] || "N/A"} ${data.personalData["civico (domicilio)"] || ""}`);
-  populated = populated.replace("{{fornitoreComune}}", `${data.personalData["CAP (domicilio)"] || "N/A"} - ${data.personalData["comune (domicilio)"] || "N/A"} (${data.personalData["provincia (domicilio)"] || "N/A"})`);
-  populated = populated.replace("{{fornitorePiva}}", `${data.personalData["p. IVA"] || "N/A"}`);
+  let html = template;
 
-  // Aggiunte per i tag del footer
-  populated = populated.replace("{{footer-fornitoreNome}}", data.personalData["nome e cognome"] || "N/A");
-  populated = populated.replace("{{footer-fornitoreIndirizzo}}", `${data.personalData["indirizzo (domicilio)"] || "N/A"} ${data.personalData["civico (domicilio)"] || ""}`);
-  populated = populated.replace("{{footer-fornitoreComune}}", `${data.personalData["CAP (domicilio)"] || "N/A"} - ${data.personalData["comune (domicilio)"] || "N/A"} (${data.personalData["provincia (domicilio)"] || "N/A"})`);
-  populated = populated.replace("{{footer-fornitorePaese}}", data.personalData["paese (domicilio)"] || "N/A");
-  populated = populated.replace("{{footer-fornitorePiva}}", `${data.personalData["p. IVA"] || "N/A"}`);
-  populated = populated.replace("{{footer-fornitoreIban}}", `${data.personalData["IBAN"] || "N/A"}`);
-  populated = populated.replace("{{footer-fornitoreMail}}", `${data.personalData.email || "N/A"}`);
-  populated = populated.replace("{{footer-fornitoreSitoWeb}}", `${data.personalData["sito web"] || "N/A"}`);
+  // date
+  const itDate = d => {
+    const m = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
+    return `${d.getDate()} ${m[d.getMonth()]} ${d.getFullYear()}`;
+  };
+  const today = new Date();
+  const valid = new Date(today); valid.setDate(valid.getDate() + 30);
 
-  populated = populated.replace("{{clienteNome}}", data.nomeCliente || "N/A");
-  populated = populated.replace("{{clienteIndirizzo}}", `${data.indirizzo || "N/A"} ${data.civico || ""}`);
-  populated = populated.replace("{{clienteComune}}", `${data.cap || "N/A"} ${data.comune || "N/A"} (${data.provincia || "N/A"})`);
-  populated = populated.replace("{{clientePiva}}", `${data.piva || "N/A"}`);
+  html = html.replace("data di emissione</p>", `data di emissione: <span class="font-semibold">${itDate(today)}</span></p>`);
+  html = html.replace("valido fino al</p>", `valido fino al: <span class="font-semibold">${itDate(valid)}</span></p>`);
 
-  populated = populated.replace("{{progettoTitolo}}", data.progetto || "N/A");
-  populated = populated.replace("{{progettoOggetto}}", data.oggetto || "N/A");
-  populated = populated.replace("{{costoSviluppo}}", `${data.progettoLordo || "0"}`);
-  populated = populated.replace("{{costoRicorrente}}", `${data.costiAnnuali || "0"}`);
-  populated = populated.replace("{{costoTotale}}", `${data.lordoCosti || "0"}`);
-  populated = populated.replace("{{migliorPrezzo}}", `${data.migliorPrezzo || "0"}`);
-  populated = populated.replace("{{scontistica}}", `${data.scontistica || "0"}`);
-  populated = populated.replace("{{tempiConsegna}}", `<span class="font-medium">Tempi di consegna:</span> ${data.tempiDiConsegna || "N/A"}`);
-  populated = populated.replace("{{condizioniPagamento}}", 
+  // fornitore
+  html = html.replace("{{fornitoreNome}}", data.personalData["nome e cognome"] || "N/A");
+  html = html.replace("{{fornitoreIndirizzo}}", `${data.personalData["indirizzo (domicilio)"] || "N/A"} ${data.personalData["civico (domicilio)"] || ""}`);
+  html = html.replace("{{fornitoreComune}}", `${data.personalData["CAP (domicilio)"] || "N/A"} - ${data.personalData["comune (domicilio)"] || "N/A"} (${data.personalData["provincia (domicilio)"] || "N/A"})`);
+  html = html.replace("{{fornitorePiva}}", `${data.personalData["p. IVA"] || "N/A"}`);
+
+  // footer fornitore
+  html = html.replace("{{footer-fornitoreNome}}", data.personalData["nome e cognome"] || "N/A");
+  html = html.replace("{{footer-fornitoreIndirizzo}}", `${data.personalData["indirizzo (domicilio)"] || "N/A"} ${data.personalData["civico (domicilio)"] || ""}`);
+  html = html.replace("{{footer-fornitoreComune}}", `${data.personalData["CAP (domicilio)"] || "N/A"} - ${data.personalData["comune (domicilio)"] || "N/A"} (${data.personalData["provincia (domicilio)"] || "N/A"})`);
+  html = html.replace("{{footer-fornitorePaese}}", data.personalData["paese (domicilio)"] || "N/A");
+  html = html.replace("{{footer-fornitorePiva}}", `${data.personalData["p. IVA"] || "N/A"}`);
+  html = html.replace("{{footer-fornitoreIban}}", `${data.personalData["IBAN"] || "N/A"}`);
+  html = html.replace("{{footer-fornitoreMail}}", `${data.personalData.email || "N/A"}`);
+  html = html.replace("{{footer-fornitoreSitoWeb}}", `${data.personalData["sito web"] || "N/A"}`);
+
+  // cliente
+  html = html.replace("{{clienteNome}}", data.nomeCliente || "N/A");
+  html = html.replace("{{clienteIndirizzo}}", `${data.indirizzo || "N/A"} ${data.civico || ""}`);
+  html = html.replace("{{clienteComune}}", `${data.cap || "N/A"} ${data.comune || "N/A"} (${data.provincia || "N/A"})`);
+  html = html.replace("{{clientePiva}}", `${data.piva || "N/A"}`);
+
+  // progetto e costi
+  html = html.replace("{{progettoTitolo}}", data.progetto || "N/A");
+  html = html.replace("{{progettoOggetto}}", data.oggetto || "N/A");
+  html = html.replace("{{costoSviluppo}}", `${data.progettoLordo || "0"}`);
+  html = html.replace("{{costoRicorrente}}", `${data.costiAnnuali || "0"}`);
+  html = html.replace("{{costoTotale}}", `${data.lordoCosti || "0"}`);
+  html = html.replace("{{migliorPrezzo}}", `${data.migliorPrezzo || "0"}`);
+  html = html.replace("{{scontistica}}", `${data.scontistica || "0"}`);
+  html = html.replace("{{tempiConsegna}}", `<span class="font-medium">Tempi di consegna:</span> ${data.tempiDiConsegna || "N/A"}`);
+  html = html.replace("{{condizioniPagamento}}",
     `<span class="font-medium">Condizioni di pagamento:</span> ${
-      data.condizioniDiPagamento.replace(
-        "__anticipo_placeholder__", 
+      (data.condizioniDiPagamento || "N/A").replace(
+        "__anticipo_placeholder__",
         `<span>${formatPercentage(data.anticipoPerc)} (€ ${data.anticipo})</span>`
-      ) || "N/A"
+      )
     }`
   );
-  // Genera le righe della tabella per le lavorazioni con righe alternate
-  const lavorazioniRows = Array.isArray(data.tasks) 
-    ? data.tasks
-        .map((task, index) => {
-          const t = task.fields || {};
-          // Prima riga (index 0) senza colore di sfondo, seconda riga (index 1) con colore, e così via
-          const bgClass = index % 2 === 1 ? "" : "bg-slate-100";
 
-          return `
-          <tr class="${bgClass}">
+  // lavorazioni
+  const lavorazioniRows = Array.isArray(data.tasks)
+    ? data.tasks.map((task, index) => {
+        const t = task.fields || {};
+        const bg = index % 2 === 1 ? "" : "bg-slate-100";
+        return `
+          <tr class="${bg}">
             <td class="px-4 py-2 text-sm">
               <div class="text-base font-bold">${t.tasks || "N/A"}</div>
               <div class="text-sm">${t.descrizione || ""}</div>
             </td>
             <td class="px-4 py-2 text-lg text-sm font-semibold">€ ${t.lordo || "N/A"}</td>
-          </tr>
-        `;
-        })
-        .join("")
+          </tr>`;
+      }).join("")
     : "<tr><td colspan='2' class='px-4 py-2 text-sm'>Nessuna lavorazione disponibile</td></tr>";
-    
-  populated = populated.replace("{{lavorazioniCorpo}}", lavorazioniRows);
-  populated = populated.replace("{{lavorazioniSubtotale}}", `<p class="text-base px-4">SUBTOTALE:<span class="text-2xl font-semibold"> € ${data.progettoLordo || "0"}</span></p>`);
+  html = html.replace("{{lavorazioniCorpo}}", lavorazioniRows);
+  html = html.replace("{{lavorazioniSubtotale}}", `<p class="text-base px-4">SUBTOTALE:<span class="text-2xl font-semibold"> € ${data.progettoLordo || "0"}</span></p>`);
 
-  // Genera le righe della tabella per le sottoscrizioni con righe alternate
+  // sottoscrizioni
   const sottoscrizioniRows = Array.isArray(data.accounts)
-    ? data.accounts
-        .map((account, index) => {
-          const a = account.fields || {};
-          // Prima riga (index 0) senza colore di sfondo, seconda riga (index 1) con colore, e così via
-          const bgClass = index % 2 === 1 ? "" : "bg-slate-100";
-
-          return `
-          <tr class="${bgClass}">
+    ? data.accounts.map((account, index) => {
+        const a = account.fields || {};
+        const bg = index % 2 === 1 ? "" : "bg-slate-100";
+        return `
+          <tr class="${bg}">
             <td class="px-4 py-2 text-sm font-bold">${a.servizio || "N/A"}</td>
             <td class="px-4 py-2 text-xs uppercase">${a.tipologia || "N/A"}</td>
             <td class="px-4 py-2 text-sm">${a.descrizione || "N/A"}</td>
             <td class="px-4 py-2 text-lg text-sm font-semibold">€ ${a["importo annuale"] || "N/A"}</td>
-          </tr>
-        `;
-        })
-        .join("")
+          </tr>`;
+      }).join("")
     : "<tr><td colspan='4' class='px-4 py-2 text-sm'>Nessuna sottoscrizione disponibile</td></tr>";
-    
-  populated = populated.replace("{{sottoscrizioniCorpo}}", sottoscrizioniRows);
-  populated = populated.replace("{{sottoscrizioniSubtotale}}", `<p class="text-base px-4">SUBTOTALE:<span class="text-2xl font-semibold">  € ${data.costiAnnuali || "0"}</span></p>`);
+  html = html.replace("{{sottoscrizioniCorpo}}", sottoscrizioniRows);
+  html = html.replace("{{sottoscrizioniSubtotale}}", `<p class="text-base px-4">SUBTOTALE:<span class="text-2xl font-semibold">  € ${data.costiAnnuali || "0"}</span></p>`);
 
-  // Aggiunta per garantire che i colori di sfondo vengano stampati nel PDF
+  // print styles
   const printStyles = `
     <style>
-      * { 
-        -webkit-print-color-adjust: exact !important; 
-        print-color-adjust: exact !important;
-      }
-      .bg-slate-100 { 
-        background-color: #f1f5f9 !important;
-      }
-    </style>
-  `;
-
-  // Aggiungi gli stili di stampa all'HTML
-  populated = populated.replace("</head>", `${printStyles}</head>`);
-
-  return populated;
-}
-
-// ===================================================
-// PDF GENERATION FUNCTIONS
-// ===================================================
-
-async function generatePDF(htmlContent, baseFilename) {
-  // Salva il file HTML originale per debug
-  DEBUG.saveToFile(`${baseFilename}.html`, htmlContent);
-
-  // Modifica l'HTML per prevenire interruzioni di pagina
-  const modifiedHtml = htmlContent.replace(
-    "</head>",
-    `
-    <style>
-      @page { size: auto; margin: 0; }
-      body { margin: 0; padding: 0; }
-      * { -webkit-print-color-adjust: exact !important; }
-      
-      /* Forza l'intero contenuto a rimanere su una singola pagina */
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      .bg-slate-100 { background-color: #f1f5f9 !important; }
+      @page { size: A4; margin: 0; }
+      body { margin: 0; }
       .no-break { page-break-inside: avoid !important; }
-    </style>
-  </head>
-  `
-  );
+    </style>`;
+  html = html.replace("</head>", `${printStyles}</head>`);
+  html = html.replace('<div id="container"', '<div id="container" class="no-break"');
 
-  // Avvolge il contenitore principale con una classe no-break
-  const wrappedHtml = modifiedHtml.replace(
-    '<div id="container"',
-    '<div id="container" class="no-break"'
-  );
-
-  // Salva anche l'HTML modificato per debug
-  DEBUG.saveToFile(`${baseFilename}_modified.html`, wrappedHtml);
-
-  try {
-    // Avvia browser con debug logs
-    DEBUG.log("Starting Puppeteer browser...");
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-
-    DEBUG.log("Creating new page...");
-    const page = await browser.newPage();
-
-    DEBUG.log("Loading HTML content...");
-    await page.setContent(wrappedHtml, { waitUntil: "networkidle0" });
-
-    DEBUG.log("Calculating content dimensions...");
-    const dimensions = await page.evaluate(() => {
-      return {
-        width: document.documentElement.offsetWidth,
-        height: document.documentElement.offsetHeight,
-      };
-    });
-
-    DEBUG.logDimensions(dimensions);
-
-    // Take screenshot for visual debugging
-    await DEBUG.takeScreenshot(page, baseFilename);
-
-    DEBUG.log("Generating PDF...");
-    const pdfPath = path.join(DEBUG.directory, `${baseFilename}.pdf`);
-    await page.pdf({
-      path: pdfPath,
-      width: "210mm",
-      height: `${dimensions.height + 100}px`, // Add extra space
-      printBackground: true,
-    });
-
-    DEBUG.log("Closing browser...");
-    await browser.close();
-
-    DEBUG.log(`PDF generated successfully: ${pdfPath}`);
-    return true;
-  } catch (error) {
-    DEBUG.error("Error generating PDF", error);
-    return false;
-  }
+  return html;
 }
 
-// ===================================================
-// MAIN APPLICATION FUNCTION
-// ===================================================
-
-async function generatePreventivo(textDomain) {
-  try {
-    DEBUG.log(`Starting generation for text domain: ${textDomain}`);
-    
-    const projectData = await getProjectByTextDomain(textDomain);
-    if (!projectData || !projectData.records || projectData.records.length === 0) {
-      return {
-        success: false,
-        message: `No project found for text domain: ${textDomain}`,
-        filename: null
-      };
-    }
-
-    DEBUG.log("Fetching personal records...");
-    const personals = await getAllRecords("personal");
-
-    const project = projectData.records[0];
-    DEBUG.log(`Processing project: ${project.id}`);
-    const fields = project.fields || {};
-    
-    // Debug output to see the raw project fields
-    DEBUG.log("Project fields:");
-    DEBUG.log(JSON.stringify(fields, null, 2));
-    
-    // Ensure these are arrays to prevent the TypeError
-    const clientIds = Array.isArray(fields.cliente) ? fields.cliente : [];
-    const taskIds = Array.isArray(fields.tasks) ? fields.tasks : [];
-    const accountIds = Array.isArray(fields.accounts) ? fields.accounts : [];
-    
-    DEBUG.log(`Account IDs: ${JSON.stringify(accountIds)}`);
-    const projectPersonalIds = Array.isArray(fields.personal) ? fields.personal : [];
-
-    DEBUG.log("Fetching client details...");
-    const clients = await getRecordsByIds("clienti", clientIds);
-
-    DEBUG.log("Fetching tasks...");
-    const tasks = await getRecordsByIds("tasks", taskIds);
-
-    DEBUG.log("Fetching accounts...");
-    const accounts = await getRecordsByIds("accounts", accountIds);
-
-    DEBUG.log("Fetching project personal data...");
-    const projectPersonals = await getRecordsByIds("personal", projectPersonalIds);
-
-    const personalData =
-      projectPersonals.length > 0
-        ? projectPersonals[0].fields
-        : personals.length > 0
-        ? personals[0].fields
-        : {};
-
-    const clientInfo = clients.length > 0 ? clients[0].fields : {};
-    const nomeCliente = clientInfo["Nome e cognome / Ragione sociale"] || "N/A";
-    const indirizzo = clientInfo["indirizzo"] || "N/A";
-    const civico = clientInfo["civico"] || "N/A";
-    const cap = clientInfo["CAP"] || "N/A";
-    const comune = clientInfo["comune"] || "N/A";
-    const provincia = clientInfo["provincia"] || "N/A";
-    const paese = clientInfo["paese"] || "N/A";
-    const piva = clientInfo["p. IVA"] || "N/A";
-
-    const progetto = fields["progetto"] || "N/A";
-    const oggetto = fields["oggetto"] || "N/A";
-    const progettoLordo = fields["lordo"] || "N/A";
-    const tempiDiConsegna = fields["tempi di consegna"] || "N/A";
-    const condizioniDiPagamento = fields["condizioni di pagamento"] || "N/A";
-    const lordoCosti = fields["lordo + costi"] || "N/A";
-    const costiAnnuali = fields["costi annuali"] || "N/A";
-    const migliorPrezzo = fields["miglior prezzo"] || "N/A";
-    const scontistica = fields["scontistica"] || "N/A";
-
-    const anticipoPerc = fields["anticipo perc"] || "N/A";
-    const anticipo = fields["anticipo"] || "N/A";
-
-    // Create template data object
-    const templateData = {
-      personalData,
-      nomeCliente,
-      indirizzo,
-      civico,
-      cap,
-      comune,
-      provincia,
-      paese,
-      piva,
-      progetto,
-      oggetto,
-      progettoLordo,
-      migliorPrezzo,
-      scontistica,
-      costiAnnuali,
-      lordoCosti,
-      tempiDiConsegna,
-      condizioniDiPagamento,
-      anticipoPerc,  
-      anticipo,     
-      tasks,
-      accounts,
-    };
-
-    // Save template data for debugging
-    DEBUG.saveToFile(`${textDomain}_template_data.json`, templateData, true);
-
-    DEBUG.log("Compiling HTML template...");
-    const htmlContent = populateTemplate(templateHtml, templateData);
-    
-    // Use a safer way to get the domain for the filename
-    const baseFilename = `preventivo_${fields["text domain"] || textDomain}`;
-    DEBUG.log(`Starting PDF generation: ${baseFilename}`);
-
-    const success = await generatePDF(htmlContent, baseFilename);
-    
-    if (success) {
-      console.log(`✅ PDF successfully generated: ${baseFilename}.pdf`);
-      return {
-        success: true,
-        message: `PDF successfully generated: ${baseFilename}.pdf`,
-        filename: baseFilename,
-        projectData: {
-          progetto: progetto,
-          nomeCliente: nomeCliente,
-          textDomain: textDomain
-        }
-      };
-    } else {
-      console.error(`❌ Error generating PDF: ${baseFilename}.pdf`);
-      return {
-        success: false,
-        message: `Error generating PDF: ${baseFilename}.pdf`,
-        filename: null
-      };
-    }
-  } catch (error) {
-    DEBUG.error("Error during execution", error);
-    return {
-      success: false,
-      message: `Error: ${error.message}`,
-      filename: null
-    };
-  }
-}
-
-// Function to run the application directly when executed
-async function main() {
-  try {
-    DEBUG.log("Starting application...");
-    
-    const textDomain = process.env.DEFAULT_TEXT_DOMAIN || "casawa";
-
-    const result = await generatePreventivo(textDomain);
-    
-    if (result.success) {
-      console.log(`✅ ${result.message}`);
-    } else {
-      console.error(`❌ ${result.message}`);
-    }
-
-    DEBUG.log("Processing completed.");
-    
-    if (DEBUG.enabled) {
-      console.log(`All debug files are available in: ${DEBUG.directory}`);
-    }
-  } catch (error) {
-    DEBUG.error("Error during execution", error);
-  }
-}
-
-// Run the application if executed directly
-if (require.main === module) {
-  main();
-}
-
+// -----------------------------
+// Builder HTML per la Function
+// -----------------------------
 async function buildPreventivoHtml(textDomain) {
-  // 1) leggi dati Airtable
-  // 2) costruisci templateData
-  // 3) genera htmlContent con il template
-  // 4) calcola baseFilename
-  return { html: htmlContent, filename: baseFilename };
+  const projectData = await getProjectByTextDomain(textDomain);
+  if (!projectData.records?.length) {
+    throw new Error(`Nessun progetto con text domain: ${textDomain}`);
+  }
+
+  const personals = await getAllRecords("personal");
+  const project = projectData.records[0];
+  const f = project.fields || {};
+
+  const clients = await getRecordsByIds("clienti", Array.isArray(f.cliente) ? f.cliente : []);
+  const tasks = await getRecordsByIds("tasks", Array.isArray(f.tasks) ? f.tasks : []);
+  const accounts = await getRecordsByIds("accounts", Array.isArray(f.accounts) ? f.accounts : []);
+  const projectPersonals = await getRecordsByIds("personal", Array.isArray(f.personal) ? f.personal : []);
+
+  const personalData =
+    projectPersonals.length ? projectPersonals[0].fields :
+    personals.length ? personals[0].fields : {};
+
+  const c = clients.length ? clients[0].fields : {};
+  const templateData = {
+    personalData,
+    nomeCliente: c["Nome e cognome / Ragione sociale"] || "N/A",
+    indirizzo: c["indirizzo"] || "N/A",
+    civico: c["civico"] || "N/A",
+    cap: c["CAP"] || "N/A",
+    comune: c["comune"] || "N/A",
+    provincia: c["provincia"] || "N/A",
+    piva: c["p. IVA"] || "N/A",
+    progetto: f["progetto"] || "N/A",
+    oggetto: f["oggetto"] || "N/A",
+    progettoLordo: f["lordo"] || "0",
+    tempiDiConsegna: f["tempi di consegna"] || "N/A",
+    condizioniDiPagamento: f["condizioni di pagamento"] || "N/A",
+    lordoCosti: f["lordo + costi"] || "0",
+    costiAnnuali: f["costi annuali"] || "0",
+    migliorPrezzo: f["miglior prezzo"] || "0",
+    scontistica: f["scontistica"] || "0",
+    anticipoPerc: f["anticipo perc"] || "0",
+    anticipo: f["anticipo"] || "0",
+    tasks, accounts
+  };
+
+  if (DEBUG.saveTemplateData) DEBUG.saveToFile(`${textDomain}_template_data.json`, templateData, true);
+
+  const template = loadTemplate();
+  const html = populateTemplate(template, templateData);
+  if (DEBUG.saveHtml) DEBUG.saveToFile(`${textDomain}.html`, html);
+
+  const filename = `preventivo_${f["text domain"] || textDomain}`;
+  return { html, filename, projectData: { progetto: templateData.progetto, nomeCliente: templateData.nomeCliente, textDomain } };
 }
 
-// Export functions for server.js to use
-module.exports = {
-  generatePreventivo,
-  buildPreventivoHtml
-};
+module.exports = { buildPreventivoHtml };
