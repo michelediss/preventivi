@@ -21,60 +21,49 @@ const DEBUG = {
       fs.mkdirSync(this.directory, { recursive: true });
     }
   },
-  log(msg) {
-    if (this.enabled && this.verboseLogging) console.log("[DEBUG]", msg);
-  },
+  log(msg) { if (this.enabled && this.verboseLogging) console.log("[DEBUG]", msg); },
   error(msg, err) {
     console.error("[ERROR]", msg, err?.message);
     if (this.enabled && this.saveFiles) {
       this._ensureDir();
       fs.writeFileSync(
         path.join(this.directory, "error_log.json"),
-        JSON.stringify({
-          timestamp: new Date().toISOString(),
-          message: msg,
-          error: { message: err?.message, stack: err?.stack }
-        }, null, 2)
+        JSON.stringify({ timestamp: new Date().toISOString(), message: msg, error: { message: err?.message, stack: err?.stack } }, null, 2)
       );
     }
   },
   saveToFile(filename, content, asJson = false) {
     if (!(this.enabled && this.saveFiles)) return;
     this._ensureDir();
-    const fp = path.join(this.directory, filename);
-    fs.writeFileSync(fp, asJson ? JSON.stringify(content, null, 2) : content);
+    fs.writeFileSync(path.join(this.directory, filename), asJson ? JSON.stringify(content, null, 2) : content);
   }
 };
 
 // -----------------------------
-// Airtable init (lazy + safe)
+// Airtable init (lazy)
 // -----------------------------
 let _airtableBase = null;
 function getAirtableBase() {
   if (_airtableBase) return _airtableBase;
   const BASE_ID = process.env.AIRTABLE_BASE_ID;
   const TOKEN = process.env.AIRTABLE_API_KEY;
-  if (!BASE_ID || !TOKEN) {
-    throw new Error("AIRTABLE_BASE_ID o AIRTABLE_API_KEY mancanti");
-  }
+  if (!BASE_ID || !TOKEN) throw new Error("AIRTABLE_BASE_ID o AIRTABLE_API_KEY mancanti");
   Airtable.configure({ apiKey: TOKEN });
   _airtableBase = Airtable.base(BASE_ID);
   return _airtableBase;
 }
 
 // -----------------------------
-// Template loader (con cache)
+// Template loader (cache)
 // -----------------------------
 let _templateHtml = null;
 function loadTemplate() {
   if (_templateHtml) return _templateHtml;
-
   const candidates = [
     path.join(__dirname, "template.html"),
     path.join(process.cwd(), "template.html"),
     "template.html"
   ];
-
   for (const p of candidates) {
     try {
       _templateHtml = fs.readFileSync(p, "utf8");
@@ -82,7 +71,6 @@ function loadTemplate() {
       return _templateHtml;
     } catch {}
   }
-
   throw new Error("template.html non trovato. Controlla vercel.json includeFiles e il percorso.");
 }
 
@@ -90,48 +78,28 @@ function loadTemplate() {
 // Airtable helpers
 // -----------------------------
 async function getProjectByTextDomain(textDomain) {
-  DEBUG.log(`Cerco progetto: ${textDomain}`);
-  try {
-    const base = getAirtableBase();
-    const records = await base("progetti")
-      .select({ filterByFormula: `{text domain}='${textDomain}'` })
-      .all();
-    const result = { records: records.map(r => ({ id: r.id, fields: r.fields })) };
-    if (DEBUG.saveResponses) DEBUG.saveToFile(`project_${textDomain}.json`, result, true);
-    return result;
-  } catch (err) {
-    DEBUG.error("Errore getProjectByTextDomain", err);
-    return { records: [] };
-  }
+  const base = getAirtableBase();
+  const records = await base("progetti").select({ filterByFormula: `{text domain}='${textDomain}'` }).all();
+  const result = { records: records.map(r => ({ id: r.id, fields: r.fields })) };
+  if (DEBUG.saveResponses) DEBUG.saveToFile(`project_${textDomain}.json`, result, true);
+  return result;
 }
-
-async function getRecordsByIds(table, recordIds) {
-  if (!Array.isArray(recordIds) || recordIds.length === 0) return [];
-  try {
-    const base = getAirtableBase();
-    const parts = recordIds.map(id => `RECORD_ID()='${id}'`);
-    const formula = parts.length > 1 ? `OR(${parts.join(",")})` : parts[0];
-    const records = await base(table).select({ filterByFormula: formula }).all();
-    const out = records.map(r => ({ id: r.id, fields: r.fields }));
-    if (DEBUG.saveResponses) DEBUG.saveToFile(`${table}_records.json`, out, true);
-    return out;
-  } catch (err) {
-    DEBUG.error(`Errore getRecordsByIds(${table})`, err);
-    return [];
-  }
+async function getRecordsByIds(table, ids) {
+  if (!Array.isArray(ids) || ids.length === 0) return [];
+  const base = getAirtableBase();
+  const parts = ids.map(id => `RECORD_ID()='${id}'`);
+  const formula = parts.length > 1 ? `OR(${parts.join(",")})` : parts[0];
+  const recs = await base(table).select({ filterByFormula: formula }).all();
+  const out = recs.map(r => ({ id: r.id, fields: r.fields }));
+  if (DEBUG.saveResponses) DEBUG.saveToFile(`${table}_records.json`, out, true);
+  return out;
 }
-
 async function getAllRecords(table) {
-  try {
-    const base = getAirtableBase();
-    const records = await base(table).select().all();
-    const out = records.map(r => ({ id: r.id, fields: r.fields }));
-    if (DEBUG.saveResponses) DEBUG.saveToFile(`all_${table}.json`, out, true);
-    return out;
-  } catch (err) {
-    DEBUG.error(`Errore getAllRecords(${table})`, err);
-    return [];
-  }
+  const base = getAirtableBase();
+  const recs = await base(table).select().all();
+  const out = recs.map(r => ({ id: r.id, fields: r.fields }));
+  if (DEBUG.saveResponses) DEBUG.saveToFile(`all_${table}.json`, out, true);
+  return out;
 }
 
 // -----------------------------
@@ -144,7 +112,6 @@ function formatPercentage(value) {
   if (typeof value === "string" && value.includes("%")) return value;
   return num < 1 ? Math.round(num * 100) + "%" : Math.round(num) + "%";
 }
-
 function populateTemplate(template, data) {
   let html = template;
 
@@ -254,9 +221,7 @@ function populateTemplate(template, data) {
 // -----------------------------
 async function buildPreventivoHtml(textDomain) {
   const projectData = await getProjectByTextDomain(textDomain);
-  if (!projectData.records?.length) {
-    throw new Error(`Nessun progetto con text domain: ${textDomain}`);
-  }
+  if (!projectData.records?.length) throw new Error(`Nessun progetto con text domain: ${textDomain}`);
 
   const personals = await getAllRecords("personal");
   const project = projectData.records[0];
@@ -267,11 +232,9 @@ async function buildPreventivoHtml(textDomain) {
   const accounts = await getRecordsByIds("accounts", Array.isArray(f.accounts) ? f.accounts : []);
   const projectPersonals = await getRecordsByIds("personal", Array.isArray(f.personal) ? f.personal : []);
 
-  const personalData =
-    projectPersonals.length ? projectPersonals[0].fields :
-    personals.length ? personals[0].fields : {};
-
+  const personalData = projectPersonals.length ? projectPersonals[0].fields : personals.length ? personals[0].fields : {};
   const c = clients.length ? clients[0].fields : {};
+
   const templateData = {
     personalData,
     nomeCliente: c["Nome e cognome / Ragione sociale"] || "N/A",

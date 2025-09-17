@@ -4,8 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "vercel dev",
-    "build": "echo skip",
-    "start": "node server.js"
+    "build": "echo skip"
   },
   "dependencies": {
     "airtable": "^0.11.6",

@@ -43,7 +43,6 @@ module.exports = async (req, res) => {
       body.domain ||
       q.domain ||
       q.textDomain ||
-      Object.keys(q)[0] ||
       process.env.DEFAULT_TEXT_DOMAIN ||
       "casawa";
 
