@@ -10,7 +10,7 @@ function sanitizeFilename(name) {
     .slice(0, 120) || "preventivo";
 }
 
-async function renderPdfBuffer(html) {
+async function renderSinglePagePdf(html) {
   const browser = await puppeteer.launch({
     args: chromium.args,
     defaultViewport: chromium.defaultViewport,
@@ -22,12 +22,35 @@ async function renderPdfBuffer(html) {
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "networkidle0" });
     await page.emulateMediaType("screen");
-    const pdf = await page.pdf({
-      format: "A4",
-      printBackground: true,
-      margin: { top: "0", right: "0", bottom: "0", left: "0" }
+
+    // Assicurati che i font siano pronti
+    if (page.evaluateHandle) {
+      try { await page.evaluateHandle(() => document.fonts && document.fonts.ready); } catch {}
+    }
+
+    // Altezza effettiva del contenuto in px
+    const contentHeight = await page.evaluate(() => {
+      const body = document.body;
+      const html = document.documentElement;
+      return Math.max(
+        body.scrollHeight, body.offsetHeight,
+        html.clientHeight, html.scrollHeight, html.offsetHeight
+      );
     });
-    // garantisci Buffer
+
+    // Chrome ha un limite massimo di altezza per pagina PDF (~200in).
+    // Clamp prudenziale per evitare errori.
+    const MAX_PX = 18800; // ~196in a 96dpi
+    const heightPx = Math.min(contentHeight, MAX_PX);
+
+    // Larghezza fissa 210mm, altezza dinamica in px
+    const pdf = await page.pdf({
+      width: "210mm",
+      height: `${heightPx}px`,
+      printBackground: true,
+      pageRanges: "1" // singola pagina
+    });
+
     return Buffer.isBuffer(pdf) ? pdf : Buffer.from(pdf);
   } finally {
     await browser.close();
@@ -46,17 +69,15 @@ module.exports = async (req, res) => {
       "casawa";
 
     const { html, filename } = await buildPreventivoHtml(domain);
-    const pdfBuffer = await renderPdfBuffer(html);
+    const pdfBuffer = await renderSinglePagePdf(html);
 
     const safeFilename = sanitizeFilename(filename) + ".pdf";
-    const headers = {
+    res.writeHead(200, {
       "Content-Type": "application/pdf",
       "Content-Disposition": `inline; filename="${safeFilename}"`,
       "Cache-Control": "no-store",
       "Content-Length": String(pdfBuffer.length)
-    };
-
-    res.writeHead(200, headers);
+    });
     res.end(pdfBuffer);
   } catch (err) {
     console.error("PDF ERROR", err);

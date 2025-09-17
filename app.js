@@ -205,9 +205,10 @@ function populateTemplate(template, data) {
   const printStyles = `
     <style>
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-      .bg-slate-100 { background-color: #f1f5f9 !important; }
-      @page { size: A4; margin: 0; }
-      body { margin: 0; }
+      /* Niente paginazione: una sola pagina */
+      @page { size: auto; margin: 0; }
+      html, body { width: 210mm; margin: 0; padding: 0; }
+      #container { width: 210mm; page-break-inside: avoid !important; }
       .no-break { page-break-inside: avoid !important; }
     </style>`;
   html = html.replace("</head>", `${printStyles}</head>`);
