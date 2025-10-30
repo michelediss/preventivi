@@ -1,0 +1,2122 @@
+{
+    "tables": [
+        {
+            "id": "tblTFoNij1GmTtHXf",
+            "name": "clienti",
+            "primaryFieldId": "fldTREN5fXBiRf4Ga",
+            "fields": [
+                {
+                    "type": "singleLineText",
+                    "id": "fldTREN5fXBiRf4Ga",
+                    "name": "Nome e cognome / Ragione sociale"
+                },
+                {
+                    "type": "email",
+                    "id": "fldZepfczLBUmUgen",
+                    "name": "email"
+                },
+                {
+                    "type": "email",
+                    "id": "fldR6GHJGkZD1qfEb",
+                    "name": "pec"
+                },
+                {
+                    "type": "phoneNumber",
+                    "id": "fld5UOpBxlXzRv5ua",
+                    "name": "telefono"
+                },
+                {
+                    "type": "multilineText",
+                    "id": "fld5hJgwFFGOq9drF",
+                    "name": "indirizzo"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldmelw9NvQELwUj9",
+                    "name": "civico"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldhChIOIE84lwdSp",
+                    "name": "CAP"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldfwrPcrSk918KXa",
+                    "name": "comune"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldd2KWzdgefdARid",
+                    "name": "provincia"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldAJjk0zkcysqxyz",
+                    "name": "paese"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fld9O8nIfU2hWemcC",
+                    "name": "cod. fiscale"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fld4q6vkEuvUYI0K8",
+                    "name": "p. IVA"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldanLZI1aLtGQxS1",
+                    "name": "codice univoco"
+                },
+                {
+                    "type": "singleSelect",
+                    "options": {
+                        "choices": [
+                            {
+                                "id": "sel5yu6n8aF1p99pO",
+                                "name": "active",
+                                "color": "greenLight2"
+                            },
+                            {
+                                "id": "sel86zOru4VYNvadU",
+                                "name": "past",
+                                "color": "orangeLight2"
+                            }
+                        ]
+                    },
+                    "id": "fldbt9RLfpafrCEcV",
+                    "name": "status"
+                },
+                {
+                    "type": "multipleRecordLinks",
+                    "options": {
+                        "linkedTableId": "tblhRGoqA4YK3usQJ",
+                        "isReversed": false,
+                        "prefersSingleRecordLink": false,
+                        "inverseLinkFieldId": "fldjNkhwCmcALrbdE"
+                    },
+                    "id": "fldw85tfBUmCrAWGX",
+                    "name": "progetti"
+                },
+                {
+                    "type": "singleSelect",
+                    "options": {
+                        "choices": [
+                            {
+                                "id": "selzxZfb43VFJerdp",
+                                "name": "Sì",
+                                "color": "blueLight2"
+                            },
+                            {
+                                "id": "selGticM3AJugJlce",
+                                "name": "No",
+                                "color": "cyanLight2"
+                            }
+                        ]
+                    },
+                    "id": "fldhj6gonVFyzuea3",
+                    "name": "p. iva sì / no"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldfv3CNvnR45aXj0",
+                    "name": "monitor"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fld5DioQbknnvkLy9",
+                    "name": "monitor 2"
+                }
+            ],
+            "views": [
+                {
+                    "id": "viwYp4DNdjEQPYwAo",
+                    "name": "anagrafica",
+                    "type": "grid"
+                }
+            ]
+        },
+        {
+            "id": "tblhRGoqA4YK3usQJ",
+            "name": "progetti",
+            "primaryFieldId": "fldh3Wodw0TG1gPzE",
+            "fields": [
+                {
+                    "type": "singleLineText",
+                    "id": "fldh3Wodw0TG1gPzE",
+                    "name": "progetto"
+                },
+                {
+                    "type": "multilineText",
+                    "id": "fldXa75FB5JUO9ifZ",
+                    "name": "oggetto"
+                },
+                {
+                    "type": "rollup",
+                    "options": {
+                        "isValid": true,
+                        "recordLinkFieldId": "fldvJPp30BGxSJcPh",
+                        "fieldIdInLinkedTable": "fldgSSsTQxmY0OtKz",
+                        "referencedFieldIds": [],
+                        "result": {
+                            "type": "currency",
+                            "options": {
+                                "precision": 2,
+                                "symbol": "€ "
+                            }
+                        }
+                    },
+                    "id": "fldsazm1MwoIkKc3s",
+                    "name": "lordo"
+                },
+                {
+                    "type": "rollup",
+                    "options": {
+                        "isValid": true,
+                        "recordLinkFieldId": "fld5MjdfSxPRvtOPa",
+                        "fieldIdInLinkedTable": "fldw35sDpFObRENqd",
+                        "referencedFieldIds": [],
+                        "result": {
+                            "type": "currency",
+                            "options": {
+                                "precision": 2,
+                                "symbol": "€ "
+                            }
+                        }
+                    },
+                    "id": "fldUm60amE5EfZ3Y1",
+                    "name": "costi annuali"
+                },
+                {
+                    "type": "formula",
+                    "options": {
+                        "isValid": true,
+                        "formula": "{fldsazm1MwoIkKc3s} + {fldUm60amE5EfZ3Y1}",
+                        "referencedFieldIds": [
+                            "fldsazm1MwoIkKc3s",
+                            "fldUm60amE5EfZ3Y1"
+                        ],
+                        "result": {
+                            "type": "currency",
+                            "options": {
+                                "precision": 2,
+                                "symbol": "€ "
+                            }
+                        }
+                    },
+                    "id": "fld1FkRE9AGfobii6",
+                    "name": "lordo + costi"
+                },
+                {
+                    "type": "currency",
+                    "options": {
+                        "precision": 2,
+                        "symbol": "€ "
+                    },
+                    "id": "fldsBca7oNUPxf02c",
+                    "name": "scontistica"
+                },
+                {
+                    "type": "formula",
+                    "options": {
+                        "isValid": true,
+                        "formula": "{fld1FkRE9AGfobii6} - {fldsBca7oNUPxf02c}",
+                        "referencedFieldIds": [
+                            "fld1FkRE9AGfobii6",
+                            "fldsBca7oNUPxf02c"
+                        ],
+                        "result": {
+                            "type": "currency",
+                            "options": {
+                                "precision": 2,
+                                "symbol": "€ "
+                            }
+                        }
+                    },
+                    "id": "fldAk4NDxUl4uq7ox",
+                    "name": "miglior prezzo"
+                },
+                {
+                    "type": "percent",
+                    "options": {
+                        "precision": 0
+                    },
+                    "id": "fldE9sVntZVpcQAsl",
+                    "name": "anticipo perc"
+                },
+                {
+                    "type": "formula",
+                    "options": {
+                        "isValid": true,
+                        "formula": "({fldAk4NDxUl4uq7ox} - {fldUm60amE5EfZ3Y1}) * {fldE9sVntZVpcQAsl}",
+                        "referencedFieldIds": [
+                            "fldAk4NDxUl4uq7ox",
+                            "fldUm60amE5EfZ3Y1",
+                            "fldE9sVntZVpcQAsl"
+                        ],
+                        "result": {
+                            "type": "currency",
+                            "options": {
+                                "precision": 2,
+                                "symbol": "€ "
+                            }
+                        }
+                    },
+                    "id": "fldd2HsMcoQTqcHrz",
+                    "name": "anticipo"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldpq6XJrNXjfTpjq",
+                    "name": "tempi di consegna"
+                },
+                {
+                    "type": "multilineText",
+                    "id": "fldXQICHleLM0mLHy",
+                    "name": "condizioni di pagamento"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldKIZ7MEob2Ap3WC",
+                    "name": "text domain"
+                },
+                {
+                    "type": "button",
+                    "id": "fld85UZTTfw20JI7Z",
+                    "name": "preventivo"
+                },
+                {
+                    "type": "date",
+                    "options": {
+                        "dateFormat": {
+                            "name": "friendly",
+                            "format": "LL"
+                        }
+                    },
+                    "id": "fldUXb3uRvU4iB8ag",
+                    "name": "deadline"
+                },
+                {
+                    "type": "formula",
+                    "options": {
+                        "isValid": true,
+                        "formula": "IF(\n    {fldUXb3uRvU4iB8ag},\n    MAX(\n        0,\n        DATETIME_DIFF({fldUXb3uRvU4iB8ag}, TODAY(), \"days\")\n        - 2 * DATETIME_DIFF({fldUXb3uRvU4iB8ag}, TODAY(), \"weeks\")\n        - IF(WEEKDAY({fldUXb3uRvU4iB8ag}) = 6, 1, 0)\n        - IF(WEEKDAY(TODAY()) = 6, 1, 0)\n    )\n)\n",
+                        "referencedFieldIds": [
+                            "fldUXb3uRvU4iB8ag"
+                        ],
+                        "result": {
+                            "type": "number",
+                            "options": {
+                                "precision": 0
+                            }
+                        }
+                    },
+                    "id": "fldjBxMiFlTClCmez",
+                    "name": "giornate rimanenti"
+                },
+                {
+                    "type": "rollup",
+                    "options": {
+                        "isValid": true,
+                        "recordLinkFieldId": "fldvJPp30BGxSJcPh",
+                        "fieldIdInLinkedTable": "fldvmVy1IKhEIojkR",
+                        "referencedFieldIds": [],
+                        "result": {
+                            "type": "number",
+                            "options": {
+                                "precision": 1
+                            }
+                        }
+                    },
+                    "id": "fldpkd6XAksqsBfi9",
+                    "name": "giornate stimate"
+                },
+                {
+                    "type": "formula",
+                    "options": {
+                        "isValid": true,
+                        "formula": "{fldsazm1MwoIkKc3s} * {fld7pUVZWWSkvsg0x}",
+                        "referencedFieldIds": [
+                            "fldsazm1MwoIkKc3s",
+                            "fld7pUVZWWSkvsg0x"
+                        ],
+                        "result": {
+                            "type": "currency",
+                            "options": {
+                                "precision": 2,
+                                "symbol": "€ "
+                            }
+                        }
+                    },
+                    "id": "fld8i7i3gYpKeiRHR",
+                    "name": "netto"
+                },
+                {
+                    "type": "multipleRecordLinks",
+                    "options": {
+                        "linkedTableId": "tbl16zqVTbFfb7Uiv",
+                        "isReversed": false,
+                        "prefersSingleRecordLink": false,
+                        "inverseLinkFieldId": "fldyTK8XPAibESQiL"
+                    },
+                    "id": "fldvJPp30BGxSJcPh",
+                    "name": "tasks"
+                },
+                {
+                    "type": "percent",
+                    "options": {
+                        "precision": 2
+                    },
+                    "id": "fld7pUVZWWSkvsg0x",
+                    "name": "netto_calc"
+                },
+                {
+                    "type": "singleSelect",
+                    "options": {
+                        "choices": [
+                            {
+                                "id": "selnHJzVHpuWKixvD",
+                                "name": "in corso",
+                                "color": "greenBright"
+                            },
+                            {
+                                "id": "seljkRPqT9x8udop0",
+                                "name": "accettato",
+                                "color": "greenLight2"
+                            },
+                            {
+                                "id": "selVW71SdC8GBychk",
+                                "name": "proposta",
+                                "color": "blueLight2"
+                            },
+                            {
+                                "id": "selxuW9m0n6xcE7LO",
+                                "name": "completato",
+                                "color": "purpleBright"
+                            },
+                            {
+                                "id": "sel4O46INav33pdek",
+                                "name": "scaduto",
+                                "color": "yellowLight2"
+                            }
+                        ]
+                    },
+                    "id": "fldNc2MBuIhHvWeW1",
+                    "name": "stato progetto"
+                },
+                {
+                    "type": "multipleRecordLinks",
+                    "options": {
+                        "linkedTableId": "tblTFoNij1GmTtHXf",
+                        "isReversed": false,
+                        "prefersSingleRecordLink": false,
+                        "inverseLinkFieldId": "fldw85tfBUmCrAWGX"
+                    },
+                    "id": "fldjNkhwCmcALrbdE",
+                    "name": "cliente"
+                },
+                {
+                    "type": "multipleLookupValues",
+                    "options": {
+                        "isValid": true,
+                        "recordLinkFieldId": "fldjNkhwCmcALrbdE",
+                        "fieldIdInLinkedTable": "fldTREN5fXBiRf4Ga",
+                        "result": {
+                            "type": "singleLineText"
+                        }
+                    },
+                    "id": "fldkcIGqlO57wS8iL",
+                    "name": "cliente (from Cliente)"
+                },
+                {
+                    "type": "multipleRecordLinks",
+                    "options": {
+                        "linkedTableId": "tbl9GDu1ypQP7rCtI",
+                        "isReversed": false,
+                        "prefersSingleRecordLink": false,
+                        "inverseLinkFieldId": "fldCKH7EcRut3Kzil"
+                    },
+                    "id": "fldj23iIIBDwifK6G",
+                    "name": "fatture"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldZivxPw1pJ9pamu",
+                    "name": "account"
+                },
+                {
+                    "type": "multipleRecordLinks",
+                    "options": {
+                        "linkedTableId": "tblawBHzLl4mndHIN",
+                        "isReversed": false,
+                        "prefersSingleRecordLink": false,
+                        "inverseLinkFieldId": "fldbIXjihsolWWrBH"
+                    },
+                    "id": "fldHOJYn9SAMWyGNG",
+                    "name": "intervista"
+                },
+                {
+                    "type": "multipleRecordLinks",
+                    "options": {
+                        "linkedTableId": "tblHFnIXDgiz9U6Tu",
+                        "isReversed": false,
+                        "prefersSingleRecordLink": false,
+                        "inverseLinkFieldId": "fldnkr8ZfIpRNjBhJ"
+                    },
+                    "id": "fldQYXzRe9flKMOF3",
+                    "name": "agenda"
+                },
+                {
+                    "type": "checkbox",
+                    "options": {
+                        "icon": "check",
+                        "color": "greenBright"
+                    },
+                    "id": "fld5E2SypKHh2vvJS",
+                    "name": "pro bono"
+                },
+                {
+                    "type": "url",
+                    "id": "fld37MbAGcgXokOGB",
+                    "name": "main domain"
+                },
+                {
+                    "type": "multipleRecordLinks",
+                    "options": {
+                        "linkedTableId": "tblOtBoRo1WTZd83H",
+                        "isReversed": false,
+                        "prefersSingleRecordLink": false,
+                        "inverseLinkFieldId": "fldccn75l5GYgDKPk"
+                    },
+                    "id": "fldcepdvPTTbjwJvc",
+                    "name": "preventivi"
+                },
+                {
+                    "type": "multipleRecordLinks",
+                    "options": {
+                        "linkedTableId": "tbldVxn30Fut2mwhs",
+                        "isReversed": false,
+                        "prefersSingleRecordLink": false,
+                        "inverseLinkFieldId": "fldkaqmR0qyYsae7B"
+                    },
+                    "id": "fld5MjdfSxPRvtOPa",
+                    "name": "accounts"
+                },
+                {
+                    "type": "multipleRecordLinks",
+                    "options": {
+                        "linkedTableId": "tblHFnIXDgiz9U6Tu",
+                        "isReversed": false,
+                        "prefersSingleRecordLink": false,
+                        "inverseLinkFieldId": "fldxMNqBtkPZdEXHk"
+                    },
+                    "id": "fldCwVpcWD6eBN3jW",
+                    "name": "agenda 2"
+                }
+            ],
+            "views": [
+                {
+                    "id": "viwoxl4VIcimxMwh8",
+                    "name": "work - preventivi",
+                    "type": "grid"
+                },
+                {
+                    "id": "viwCM5j1fJAfgXGAm",
+                    "name": "workflow",
+                    "type": "grid"
+                },
+                {
+                    "id": "viwn5ROo5d76DBTX5",
+                    "name": "deadlinez",
+                    "type": "calendar"
+                },
+                {
+                    "id": "viwySj8J2MUsG5ash",
+                    "name": "totale",
+                    "type": "grid"
+                }
+            ]
+        },
+        {
+            "id": "tbl16zqVTbFfb7Uiv",
+            "name": "tasks",
+            "primaryFieldId": "fldzJH6M1zR9CBd6H",
+            "fields": [
+                {
+                    "type": "singleLineText",
+                    "id": "fldzJH6M1zR9CBd6H",
+                    "name": "tasks"
+                },
+                {
+                    "type": "number",
+                    "options": {
+                        "precision": 0
+                    },
+                    "id": "fldipfdCScb5CGAaM",
+                    "name": "ore stimate"
+                },
+                {
+                    "type": "formula",
+                    "options": {
+                        "isValid": true,
+                        "formula": "{fldipfdCScb5CGAaM} / 6",
+                        "referencedFieldIds": [
+                            "fldipfdCScb5CGAaM"
+                        ],
+                        "result": {
+                            "type": "number",
+                            "options": {
+                                "precision": 1
+                            }
+                        }
+                    },
+                    "id": "fldvmVy1IKhEIojkR",
+                    "name": "giorni stimati"
+                },
+                {
+                    "type": "formula",
+                    "options": {
+                        "isValid": true,
+                        "formula": "{fldhcun6fMWO1OeaF} + {fldfwfqfDR6oMPFRC}\n",
+                        "referencedFieldIds": [
+                            "fldhcun6fMWO1OeaF",
+                            "fldfwfqfDR6oMPFRC"
+                        ],
+                        "result": {
+                            "type": "currency",
+                            "options": {
+                                "precision": 2,
+                                "symbol": "€ "
+                            }
+                        }
+                    },
+                    "id": "fldgSSsTQxmY0OtKz",
+                    "name": "lordo"
+                },
+                {
+                    "type": "currency",
+                    "options": {
+                        "precision": 2,
+                        "symbol": "€ "
+                    },
+                    "id": "fldfwfqfDR6oMPFRC",
+                    "name": "maggiorazione/sconto"
+                },
+                {
+                    "type": "checkbox",
+                    "options": {
+                        "icon": "check",
+                        "color": "greenBright"
+                    },
+                    "id": "fldrugzTY2qZM9QH2",
+                    "name": "completato?"
+                },
+                {
+                    "type": "multipleRecordLinks",
+                    "options": {
+                        "linkedTableId": "tblhRGoqA4YK3usQJ",
+                        "isReversed": false,
+                        "prefersSingleRecordLink": true,
+                        "inverseLinkFieldId": "fldvJPp30BGxSJcPh"
+                    },
+                    "id": "fldyTK8XPAibESQiL",
+                    "name": "progetto"
+                },
+                {
+                    "type": "multilineText",
+                    "id": "fldNE7igbOtupblcd",
+                    "name": "descrizione"
+                },
+                {
+                    "type": "formula",
+                    "options": {
+                        "isValid": true,
+                        "formula": "IF({fldHstvo8v8FHosnz}, {fldipfdCScb5CGAaM} * 0, {fldipfdCScb5CGAaM} * {fldEBrofixlYXZ3tW})\n",
+                        "referencedFieldIds": [
+                            "fldHstvo8v8FHosnz",
+                            "fldipfdCScb5CGAaM",
+                            "fldEBrofixlYXZ3tW"
+                        ],
+                        "result": {
+                            "type": "currency",
+                            "options": {
+                                "precision": 2,
+                                "symbol": "€ "
+                            }
+                        }
+                    },
+                    "id": "fldhcun6fMWO1OeaF",
+                    "name": "lordo grezzo"
+                },
+                {
+                    "type": "currency",
+                    "options": {
+                        "precision": 2,
+                        "symbol": "€ "
+                    },
+                    "id": "fldEBrofixlYXZ3tW",
+                    "name": "tariffa oraria"
+                },
+                {
+                    "type": "formula",
+                    "options": {
+                        "isValid": true,
+                        "formula": "{fldgSSsTQxmY0OtKz} * 70 / 100",
+                        "referencedFieldIds": [
+                            "fldgSSsTQxmY0OtKz"
+                        ],
+                        "result": {
+                            "type": "currency",
+                            "options": {
+                                "precision": 2,
+                                "symbol": "€ "
+                            }
+                        }
+                    },
+                    "id": "fld67sMhAFuqdbMkq",
+                    "name": "netto"
+                },
+                {
+                    "type": "multipleLookupValues",
+                    "options": {
+                        "isValid": true,
+                        "recordLinkFieldId": "fldyTK8XPAibESQiL",
+                        "fieldIdInLinkedTable": "fldNc2MBuIhHvWeW1",
+                        "result": {
+                            "type": "singleSelect",
+                            "options": {
+                                "choices": [
+                                    {
+                                        "id": "selnHJzVHpuWKixvD",
+                                        "name": "in corso",
+                                        "color": "greenBright"
+                                    },
+                                    {
+                                        "id": "seljkRPqT9x8udop0",
+                                        "name": "accettato",
+                                        "color": "greenLight2"
+                                    },
+                                    {
+                                        "id": "selVW71SdC8GBychk",
+                                        "name": "proposta",
+                                        "color": "blueLight2"
+                                    },
+                                    {
+                                        "id": "selxuW9m0n6xcE7LO",
+                                        "name": "completato",
+                                        "color": "purpleBright"
+                                    },
+                                    {
+                                        "id": "sel4O46INav33pdek",
+                                        "name": "scaduto",
+                                        "color": "yellowLight2"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "id": "fld1aRx2ay34DO9tI",
+                    "name": "stato progetto"
+                },
+                {
+                    "type": "multipleLookupValues",
+                    "options": {
+                        "isValid": true,
+                        "recordLinkFieldId": "fldyTK8XPAibESQiL",
+                        "fieldIdInLinkedTable": "fldNc2MBuIhHvWeW1",
+                        "result": {
+                            "type": "singleSelect",
+                            "options": {
+                                "choices": [
+                                    {
+                                        "id": "selnHJzVHpuWKixvD",
+                                        "name": "in corso",
+                                        "color": "greenBright"
+                                    },
+                                    {
+                                        "id": "seljkRPqT9x8udop0",
+                                        "name": "accettato",
+                                        "color": "greenLight2"
+                                    },
+                                    {
+                                        "id": "selVW71SdC8GBychk",
+                                        "name": "proposta",
+                                        "color": "blueLight2"
+                                    },
+                                    {
+                                        "id": "selxuW9m0n6xcE7LO",
+                                        "name": "completato",
+                                        "color": "purpleBright"
+                                    },
+                                    {
+                                        "id": "sel4O46INav33pdek",
+                                        "name": "scaduto",
+                                        "color": "yellowLight2"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "id": "fldGxUMMhS6GT9xPh",
+                    "name": "stato progetto (from progetto)"
+                },
+                {
+                    "type": "multipleLookupValues",
+                    "options": {
+                        "isValid": true,
+                        "recordLinkFieldId": "fldyTK8XPAibESQiL",
+                        "fieldIdInLinkedTable": "fldUXb3uRvU4iB8ag",
+                        "result": {
+                            "type": "date",
+                            "options": {
+                                "dateFormat": {
+                                    "name": "friendly",
+                                    "format": "LL"
+                                }
+                            }
+                        }
+                    },
+                    "id": "fldlNWGMD5AUC6tkM",
+                    "name": "deadline (from progetto)"
+                },
+                {
+                    "type": "multipleLookupValues",
+                    "options": {
+                        "isValid": true,
+                        "recordLinkFieldId": "fldyTK8XPAibESQiL",
+                        "fieldIdInLinkedTable": "fld5E2SypKHh2vvJS",
+                        "result": {
+                            "type": "checkbox",
+                            "options": {
+                                "icon": "check",
+                                "color": "greenBright"
+                            }
+                        }
+                    },
+                    "id": "fldHstvo8v8FHosnz",
+                    "name": "pro bono (from progetto)"
+                }
+            ],
+            "views": [
+                {
+                    "id": "viwKO0EUu6JHSdHkT",
+                    "name": "task - in corso",
+                    "type": "grid"
+                },
+                {
+                    "id": "viwRPdiP6WGSmzqm3",
+                    "name": "task - in entrata",
+                    "type": "grid"
+                },
+                {
+                    "id": "viwMeEuoKLPSbB8Xl",
+                    "name": "task - completati",
+                    "type": "grid"
+                },
+                {
+                    "id": "viwOaW8nYD5flMZ85",
+                    "name": "task - main",
+                    "type": "grid"
+                },
+                {
+                    "id": "viwGawpQwoU5Ckivo",
+                    "name": "task - preventivi",
+                    "type": "grid"
+                },
+                {
+                    "id": "viwc3grwepWEBkL4A",
+                    "name": "totale",
+                    "type": "grid"
+                }
+            ]
+        },
+        {
+            "id": "tbldVxn30Fut2mwhs",
+            "name": "accounts",
+            "primaryFieldId": "fldLyF3U83GntQP5E",
+            "fields": [
+                {
+                    "type": "singleLineText",
+                    "id": "fldLyF3U83GntQP5E",
+                    "name": "servizio"
+                },
+                {
+                    "type": "currency",
+                    "options": {
+                        "precision": 2,
+                        "symbol": "€ "
+                    },
+                    "id": "fldw35sDpFObRENqd",
+                    "name": "importo annuale"
+                },
+                {
+                    "type": "checkbox",
+                    "options": {
+                        "icon": "check",
+                        "color": "greenBright"
+                    },
+                    "id": "fldqT4zPIWHcq5nu0",
+                    "name": "gestito"
+                },
+                {
+                    "type": "singleSelect",
+                    "options": {
+                        "choices": [
+                            {
+                                "id": "sel2hBy5DwQhCbSMq",
+                                "name": "hosting",
+                                "color": "blueBright"
+                            },
+                            {
+                                "id": "selrA3LpvoQ6QFSlq",
+                                "name": "dominio",
+                                "color": "tealBright"
+                            },
+                            {
+                                "id": "selhs6gYwnobXb5iG",
+                                "name": "plugin",
+                                "color": "greenBright"
+                            },
+                            {
+                                "id": "selBLXbWD6Lu3N8I4",
+                                "name": "tema",
+                                "color": "yellowBright"
+                            },
+                            {
+                                "id": "selGRkJsSEUaFqaKu",
+                                "name": "altro",
+                                "color": "orangeBright"
+                            },
+                            {
+                                "id": "selY5OKYSKCH3hLg1",
+                                "name": "email",
+                                "color": "yellowLight2"
+                            },
+                            {
+                                "id": "selxVimAptofimAOp",
+                                "name": "payment",
+                                "color": "blueLight2"
+                            },
+                            {
+                                "id": "selZCv8eKkmmjju5f",
+                                "name": "repo",
+                                "color": "cyanLight2"
+                            }
+                        ]
+                    },
+                    "id": "fldveXvM54aq9KMQv",
+                    "name": "tipologia"
+                },
+                {
+                    "type": "checkbox",
+                    "options": {
+                        "icon": "check",
+                        "color": "greenBright"
+                    },
+                    "id": "fldGPWgBi2MkgCKmV",
+                    "name": "a carico del cliente"
+                },
+                {
+                    "type": "singleSelect",
+                    "options": {
+                        "choices": [
+                            {
+                                "id": "selyjuyLjhHmLlShV",
+                                "name": "mensile",
+                                "color": "blueLight2"
+                            },
+                            {
+                                "id": "selDDbYnigFuQv04a",
+                                "name": "annuale",
+                                "color": "cyanLight2"
+                            },
+                            {
+                                "id": "selmdO9q63ooqtkfI",
+                                "name": "una tantum",
+                                "color": "tealLight2"
+                            },
+                            {
+                                "id": "selbTZCZNMzBvRfEf",
+                                "name": "free",
+                                "color": "greenLight2"
+                            }
+                        ]
+                    },
+                    "id": "fldvdgqxiIqUOj6N5",
+                    "name": "fatturazione"
+                },
+                {
+                    "type": "multilineText",
+                    "id": "flddLvsQ5qCHk0tuL",
+                    "name": "descrizione"
+                },
+                {
+                    "type": "button",
+                    "id": "fldzF0tR9EIMysSAQ",
+                    "name": "link"
+                },
+                {
+                    "type": "multipleRecordLinks",
+                    "options": {
+                        "linkedTableId": "tblhRGoqA4YK3usQJ",
+                        "isReversed": false,
+                        "prefersSingleRecordLink": false,
+                        "inverseLinkFieldId": "fld5MjdfSxPRvtOPa"
+                    },
+                    "id": "fldkaqmR0qyYsae7B",
+                    "name": "progetti"
+                },
+                {
+                    "type": "url",
+                    "id": "fldajIkYUrFE0X2nW",
+                    "name": "url"
+                },
+                {
+                    "type": "email",
+                    "id": "fldz3XOw91p21lft0",
+                    "name": "usr"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldx3j1fRpGsByKhV",
+                    "name": "psw"
+                },
+                {
+                    "type": "date",
+                    "options": {
+                        "dateFormat": {
+                            "name": "friendly",
+                            "format": "LL"
+                        }
+                    },
+                    "id": "fldQ4z8qudiLlcfZb",
+                    "name": "attivazione"
+                },
+                {
+                    "type": "formula",
+                    "options": {
+                        "isValid": true,
+                        "formula": "IF(\n  {fldvdgqxiIqUOj6N5} = \"una tantum\",\n  BLANK(),\n  IF(\n    {fldvdgqxiIqUOj6N5} = \"mensile\",\n    DATEADD(\n      {fldQ4z8qudiLlcfZb},\n      IF(\n        DATEADD(\n          {fldQ4z8qudiLlcfZb},\n          CEILING(DATETIME_DIFF(TODAY(), {fldQ4z8qudiLlcfZb}, \"months\")),\n          \"months\"\n        ) <= TODAY(),\n        CEILING(DATETIME_DIFF(TODAY(), {fldQ4z8qudiLlcfZb}, \"months\")) + 1,\n        CEILING(DATETIME_DIFF(TODAY(), {fldQ4z8qudiLlcfZb}, \"months\"))\n      ),\n      \"months\"\n    ),\n    IF(\n      {fldvdgqxiIqUOj6N5} = \"annuale\",\n      DATEADD(\n        {fldQ4z8qudiLlcfZb},\n        IF(\n          DATEADD(\n            {fldQ4z8qudiLlcfZb},\n            DATETIME_DIFF(TODAY(), {fldQ4z8qudiLlcfZb}, \"years\"),\n            \"years\"\n          ) <= TODAY(),\n          DATETIME_DIFF(TODAY(), {fldQ4z8qudiLlcfZb}, \"years\") + 1,\n          DATETIME_DIFF(TODAY(), {fldQ4z8qudiLlcfZb}, \"years\")\n        ),\n        \"years\"\n      )\n    )\n  )\n)",
+                        "referencedFieldIds": [
+                            "fldvdgqxiIqUOj6N5",
+                            "fldQ4z8qudiLlcfZb"
+                        ],
+                        "result": {
+                            "type": "date",
+                            "options": {
+                                "dateFormat": {
+                                    "name": "friendly",
+                                    "format": "LL"
+                                }
+                            }
+                        }
+                    },
+                    "id": "flddCyES4I1PIR5o8",
+                    "name": "rinnovo"
+                },
+                {
+                    "type": "multipleLookupValues",
+                    "options": {
+                        "isValid": true,
+                        "recordLinkFieldId": "fldkaqmR0qyYsae7B",
+                        "fieldIdInLinkedTable": "fldNc2MBuIhHvWeW1",
+                        "result": {
+                            "type": "singleSelect",
+                            "options": {
+                                "choices": [
+                                    {
+                                        "id": "selnHJzVHpuWKixvD",
+                                        "name": "in corso",
+                                        "color": "greenBright"
+                                    },
+                                    {
+                                        "id": "seljkRPqT9x8udop0",
+                                        "name": "accettato",
+                                        "color": "greenLight2"
+                                    },
+                                    {
+                                        "id": "selVW71SdC8GBychk",
+                                        "name": "proposta",
+                                        "color": "blueLight2"
+                                    },
+                                    {
+                                        "id": "selxuW9m0n6xcE7LO",
+                                        "name": "completato",
+                                        "color": "purpleBright"
+                                    },
+                                    {
+                                        "id": "sel4O46INav33pdek",
+                                        "name": "scaduto",
+                                        "color": "yellowLight2"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "id": "fldbLaaisNzHIndZ4",
+                    "name": "stato progetto (from progetti)"
+                }
+            ],
+            "views": [
+                {
+                    "id": "viwfI8E50krvi19VE",
+                    "name": "main",
+                    "type": "grid"
+                },
+                {
+                    "id": "viwJynPrKraTr984z",
+                    "name": "account",
+                    "type": "grid"
+                },
+                {
+                    "id": "viwkglsIkQCmuLzMw",
+                    "name": "gestiti",
+                    "type": "grid"
+                }
+            ]
+        },
+        {
+            "id": "tblOtBoRo1WTZd83H",
+            "name": "preventivi",
+            "primaryFieldId": "fldXrKV4f4CYVzQM7",
+            "fields": [
+                {
+                    "type": "autoNumber",
+                    "id": "fldXrKV4f4CYVzQM7",
+                    "name": "n."
+                },
+                {
+                    "type": "multipleAttachments",
+                    "options": {
+                        "isReversed": false
+                    },
+                    "id": "fldTE5wO0KfJL3Jrs",
+                    "name": "PDF"
+                },
+                {
+                    "type": "multipleRecordLinks",
+                    "options": {
+                        "linkedTableId": "tblhRGoqA4YK3usQJ",
+                        "isReversed": false,
+                        "prefersSingleRecordLink": false,
+                        "inverseLinkFieldId": "fldcepdvPTTbjwJvc"
+                    },
+                    "id": "fldccn75l5GYgDKPk",
+                    "name": "progetto"
+                },
+                {
+                    "type": "multipleLookupValues",
+                    "options": {
+                        "isValid": true,
+                        "recordLinkFieldId": "fldccn75l5GYgDKPk",
+                        "fieldIdInLinkedTable": "fldkcIGqlO57wS8iL",
+                        "result": {
+                            "type": "singleLineText"
+                        }
+                    },
+                    "id": "fld8PChMBwcSy17zu",
+                    "name": "cliente"
+                },
+                {
+                    "type": "singleSelect",
+                    "options": {
+                        "choices": [
+                            {
+                                "id": "selcjpoob56hdGKFz",
+                                "name": "accettato",
+                                "color": "greenLight2"
+                            },
+                            {
+                                "id": "selsSm5UxamLTHOuM",
+                                "name": "proposta",
+                                "color": "yellowLight2"
+                            },
+                            {
+                                "id": "selEevNrDqBnb1swM",
+                                "name": "rifiutato",
+                                "color": "redLight2"
+                            }
+                        ]
+                    },
+                    "id": "fldSD82Tw2q8H9zJG",
+                    "name": "stato"
+                },
+                {
+                    "type": "createdTime",
+                    "options": {
+                        "result": {
+                            "type": "date",
+                            "options": {
+                                "dateFormat": {
+                                    "name": "friendly",
+                                    "format": "LL"
+                                }
+                            }
+                        }
+                    },
+                    "id": "fldzlvgMeCJHUrUYj",
+                    "name": "data creazione"
+                },
+                {
+                    "type": "formula",
+                    "options": {
+                        "isValid": true,
+                        "formula": "YEAR({fldzlvgMeCJHUrUYj})",
+                        "referencedFieldIds": [
+                            "fldzlvgMeCJHUrUYj"
+                        ],
+                        "result": {
+                            "type": "number",
+                            "options": {
+                                "precision": 0
+                            }
+                        }
+                    },
+                    "id": "fldRZyQw9lydQeBIc",
+                    "name": "anno"
+                },
+                {
+                    "type": "multipleLookupValues",
+                    "options": {
+                        "isValid": true,
+                        "recordLinkFieldId": "fldccn75l5GYgDKPk",
+                        "fieldIdInLinkedTable": "fldh3Wodw0TG1gPzE",
+                        "result": {
+                            "type": "singleLineText"
+                        }
+                    },
+                    "id": "fldQB7LNy99Jo8Jnm",
+                    "name": "progetto (from progetti)"
+                }
+            ],
+            "views": [
+                {
+                    "id": "viwxeTCPB90Kb1wWj",
+                    "name": "Kanban",
+                    "type": "kanban"
+                },
+                {
+                    "id": "viw0NJOfXJes5Kr0O",
+                    "name": "cronologia 2025",
+                    "type": "grid"
+                },
+                {
+                    "id": "viwVnyuUiCrQqB7tT",
+                    "name": "accettati",
+                    "type": "grid"
+                },
+                {
+                    "id": "viwUrLSEl4BQRGK97",
+                    "name": "proposta",
+                    "type": "grid"
+                },
+                {
+                    "id": "viwFM1wYHwDdFuWtA",
+                    "name": "cliente / progetto",
+                    "type": "grid"
+                }
+            ]
+        },
+        {
+            "id": "tbl9GDu1ypQP7rCtI",
+            "name": "fatture",
+            "primaryFieldId": "fldaLkcrYOaoHIRal",
+            "fields": [
+                {
+                    "type": "autoNumber",
+                    "id": "fldaLkcrYOaoHIRal",
+                    "name": "N. fattura"
+                },
+                {
+                    "type": "currency",
+                    "options": {
+                        "precision": 2,
+                        "symbol": "€ "
+                    },
+                    "id": "fldDsfjvjzucSVxdD",
+                    "name": "importo"
+                },
+                {
+                    "type": "singleSelect",
+                    "options": {
+                        "choices": [
+                            {
+                                "id": "selFAmH4jRKzK9mj0",
+                                "name": "inviata",
+                                "color": "redLight2"
+                            },
+                            {
+                                "id": "selrCYQieseRL7GiW",
+                                "name": "saldata",
+                                "color": "greenLight2"
+                            }
+                        ]
+                    },
+                    "id": "fldyYU8xa1uKH3TNd",
+                    "name": "stato"
+                },
+                {
+                    "type": "formula",
+                    "options": {
+                        "isValid": true,
+                        "formula": "{fldDsfjvjzucSVxdD} * {fldgLG1KYbzUjB3bU}",
+                        "referencedFieldIds": [
+                            "fldDsfjvjzucSVxdD",
+                            "fldgLG1KYbzUjB3bU"
+                        ],
+                        "result": {
+                            "type": "currency",
+                            "options": {
+                                "precision": 2,
+                                "symbol": "€ "
+                            }
+                        }
+                    },
+                    "id": "fldfmnARer5mhn7VA",
+                    "name": "tasse"
+                },
+                {
+                    "type": "date",
+                    "options": {
+                        "dateFormat": {
+                            "name": "friendly",
+                            "format": "LL"
+                        }
+                    },
+                    "id": "fldrjPfzfQQNHRsgm",
+                    "name": "data emissione"
+                },
+                {
+                    "type": "multipleRecordLinks",
+                    "options": {
+                        "linkedTableId": "tblhRGoqA4YK3usQJ",
+                        "isReversed": false,
+                        "prefersSingleRecordLink": false,
+                        "inverseLinkFieldId": "fldj23iIIBDwifK6G"
+                    },
+                    "id": "fldCKH7EcRut3Kzil",
+                    "name": "progetto"
+                },
+                {
+                    "type": "multilineText",
+                    "id": "fldlDh4tQiTi4cmRM",
+                    "name": "descrizione"
+                },
+                {
+                    "type": "multipleAttachments",
+                    "options": {
+                        "isReversed": false
+                    },
+                    "id": "fldYaILTN1kgGs2rZ",
+                    "name": "fattura PDF"
+                },
+                {
+                    "type": "percent",
+                    "options": {
+                        "precision": 0
+                    },
+                    "id": "fldgLG1KYbzUjB3bU",
+                    "name": "tax_calc"
+                },
+                {
+                    "type": "formula",
+                    "options": {
+                        "isValid": true,
+                        "formula": "YEAR({fldrjPfzfQQNHRsgm})\n",
+                        "referencedFieldIds": [
+                            "fldrjPfzfQQNHRsgm"
+                        ],
+                        "result": {
+                            "type": "number",
+                            "options": {
+                                "precision": 0
+                            }
+                        }
+                    },
+                    "id": "fldltOJZra0vJJVAm",
+                    "name": "anno"
+                },
+                {
+                    "type": "multipleLookupValues",
+                    "options": {
+                        "isValid": true,
+                        "recordLinkFieldId": "fldCKH7EcRut3Kzil",
+                        "fieldIdInLinkedTable": "fldh3Wodw0TG1gPzE",
+                        "result": {
+                            "type": "singleLineText"
+                        }
+                    },
+                    "id": "fld8He90h87UEV2cv",
+                    "name": "progetto (from progetto)"
+                }
+            ],
+            "views": [
+                {
+                    "id": "viw8h2mXm1D9nfQ8P",
+                    "name": "2025",
+                    "type": "grid"
+                },
+                {
+                    "id": "viwRq4PekmvcRvwzZ",
+                    "name": "tutti gli anni",
+                    "type": "grid"
+                },
+                {
+                    "id": "viwS3sS4no44cnCLy",
+                    "name": "totale",
+                    "type": "grid"
+                }
+            ]
+        },
+        {
+            "id": "tblHFnIXDgiz9U6Tu",
+            "name": "agenda",
+            "primaryFieldId": "fldpf3Pbkl0kyUlOu",
+            "fields": [
+                {
+                    "type": "dateTime",
+                    "options": {
+                        "dateFormat": {
+                            "name": "friendly",
+                            "format": "LL"
+                        },
+                        "timeFormat": {
+                            "name": "24hour",
+                            "format": "HH:mm"
+                        },
+                        "timeZone": "Europe/Rome"
+                    },
+                    "id": "fldpf3Pbkl0kyUlOu",
+                    "name": "data"
+                },
+                {
+                    "type": "multipleRecordLinks",
+                    "options": {
+                        "linkedTableId": "tblhRGoqA4YK3usQJ",
+                        "isReversed": false,
+                        "prefersSingleRecordLink": false,
+                        "inverseLinkFieldId": "fldQYXzRe9flKMOF3"
+                    },
+                    "id": "fldnkr8ZfIpRNjBhJ",
+                    "name": "progetto"
+                },
+                {
+                    "type": "singleSelect",
+                    "options": {
+                        "choices": [
+                            {
+                                "id": "seltnrqa3XysLssOu",
+                                "name": "Call",
+                                "color": "blueLight2"
+                            },
+                            {
+                                "id": "selZMhES3P1HNJgcN",
+                                "name": "Reminder",
+                                "color": "greenLight2"
+                            }
+                        ]
+                    },
+                    "id": "fldKpn77N7jO0fZa2",
+                    "name": "evento"
+                },
+                {
+                    "type": "multilineText",
+                    "id": "fldThra0f65fp6YcV",
+                    "name": "nota"
+                },
+                {
+                    "type": "checkbox",
+                    "options": {
+                        "icon": "check",
+                        "color": "greenBright"
+                    },
+                    "id": "fldwt36LdrGop4nzb",
+                    "name": "done"
+                },
+                {
+                    "type": "number",
+                    "options": {
+                        "precision": 0
+                    },
+                    "id": "fldUz8YFqi6lsfokI",
+                    "name": "priority"
+                },
+                {
+                    "type": "multipleLookupValues",
+                    "options": {
+                        "isValid": true,
+                        "recordLinkFieldId": "fldnkr8ZfIpRNjBhJ",
+                        "fieldIdInLinkedTable": "fldh3Wodw0TG1gPzE",
+                        "result": {
+                            "type": "singleLineText"
+                        }
+                    },
+                    "id": "fldCCiqG5due6xnTg",
+                    "name": "progetto (from progetti)"
+                },
+                {
+                    "type": "formula",
+                    "options": {
+                        "isValid": true,
+                        "formula": "IF(IS_BEFORE({fldpf3Pbkl0kyUlOu}, TODAY()), \"Archiviato\", \"Attivo\")\n",
+                        "referencedFieldIds": [
+                            "fldpf3Pbkl0kyUlOu"
+                        ],
+                        "result": {
+                            "type": "singleLineText"
+                        }
+                    },
+                    "id": "fld1pvKyV5HxoX0OZ",
+                    "name": "assistente"
+                },
+                {
+                    "type": "formula",
+                    "options": {
+                        "isValid": true,
+                        "formula": "DATEADD({fldpf3Pbkl0kyUlOu}, -2, 'hours')",
+                        "referencedFieldIds": [
+                            "fldpf3Pbkl0kyUlOu"
+                        ],
+                        "result": {
+                            "type": "dateTime",
+                            "options": {
+                                "dateFormat": {
+                                    "name": "friendly",
+                                    "format": "LL"
+                                },
+                                "timeFormat": {
+                                    "name": "24hour",
+                                    "format": "HH:mm"
+                                },
+                                "timeZone": "Europe/Rome"
+                            }
+                        }
+                    },
+                    "id": "flddDQMV9CHPy5ZYV",
+                    "name": "promemoria 2h"
+                },
+                {
+                    "type": "formula",
+                    "options": {
+                        "isValid": true,
+                        "formula": "IF(\n     AND(\n          {flddDQMV9CHPy5ZYV},\n          NOW() >= {flddDQMV9CHPy5ZYV}\n     ),\n     \"Attiva promemoria\"\n)",
+                        "referencedFieldIds": [
+                            "flddDQMV9CHPy5ZYV"
+                        ],
+                        "result": {
+                            "type": "singleLineText"
+                        }
+                    },
+                    "id": "fldqY6O5O0f7OL8R0",
+                    "name": "attivatore 2h"
+                },
+                {
+                    "type": "formula",
+                    "options": {
+                        "isValid": true,
+                        "formula": "DATEADD({fldpf3Pbkl0kyUlOu}, -24, 'hours')\n",
+                        "referencedFieldIds": [
+                            "fldpf3Pbkl0kyUlOu"
+                        ],
+                        "result": {
+                            "type": "dateTime",
+                            "options": {
+                                "dateFormat": {
+                                    "name": "friendly",
+                                    "format": "LL"
+                                },
+                                "timeFormat": {
+                                    "name": "24hour",
+                                    "format": "HH:mm"
+                                },
+                                "timeZone": "Europe/Rome"
+                            }
+                        }
+                    },
+                    "id": "fldWRxNGTvHRoheJF",
+                    "name": "promemoria 24h"
+                },
+                {
+                    "type": "formula",
+                    "options": {
+                        "isValid": true,
+                        "formula": "IF(\n     AND(\n          {fldWRxNGTvHRoheJF},\n          NOW() >= {fldWRxNGTvHRoheJF}\n     ),\n     \"Attiva promemoria\"\n)",
+                        "referencedFieldIds": [
+                            "fldWRxNGTvHRoheJF"
+                        ],
+                        "result": {
+                            "type": "singleLineText"
+                        }
+                    },
+                    "id": "fldXOdS3UzK1bqcHh",
+                    "name": "attivatore 24h"
+                },
+                {
+                    "type": "formula",
+                    "options": {
+                        "isValid": true,
+                        "formula": "DATETIME_FORMAT({fldpf3Pbkl0kyUlOu}, \"D\") & \" \" &\nSWITCH(\n    DATETIME_FORMAT({fldpf3Pbkl0kyUlOu}, \"MMMM\"),\n    \"January\", \"gennaio\",\n    \"February\", \"febbraio\",\n    \"March\", \"marzo\",\n    \"April\", \"aprile\",\n    \"May\", \"maggio\",\n    \"June\", \"giugno\",\n    \"July\", \"luglio\",\n    \"August\", \"agosto\",\n    \"September\", \"settembre\",\n    \"October\", \"ottobre\",\n    \"November\", \"novembre\",\n    \"December\", \"dicembre\"\n) & \" ore \" &\nDATETIME_FORMAT({fldpf3Pbkl0kyUlOu}, \"HH:mm\")\n",
+                        "referencedFieldIds": [
+                            "fldpf3Pbkl0kyUlOu"
+                        ],
+                        "result": {
+                            "type": "singleLineText"
+                        }
+                    },
+                    "id": "fldRljgqyxhgv6RLt",
+                    "name": "data in stringa"
+                },
+                {
+                    "type": "multipleRecordLinks",
+                    "options": {
+                        "linkedTableId": "tblhRGoqA4YK3usQJ",
+                        "isReversed": false,
+                        "prefersSingleRecordLink": false,
+                        "inverseLinkFieldId": "fldCwVpcWD6eBN3jW"
+                    },
+                    "id": "fldxMNqBtkPZdEXHk",
+                    "name": "progetti"
+                },
+                {
+                    "type": "multipleLookupValues",
+                    "options": {
+                        "isValid": true,
+                        "recordLinkFieldId": "fldxMNqBtkPZdEXHk",
+                        "fieldIdInLinkedTable": "fldNc2MBuIhHvWeW1",
+                        "result": {
+                            "type": "singleSelect",
+                            "options": {
+                                "choices": [
+                                    {
+                                        "id": "selnHJzVHpuWKixvD",
+                                        "name": "in corso",
+                                        "color": "greenBright"
+                                    },
+                                    {
+                                        "id": "seljkRPqT9x8udop0",
+                                        "name": "accettato",
+                                        "color": "greenLight2"
+                                    },
+                                    {
+                                        "id": "selVW71SdC8GBychk",
+                                        "name": "proposta",
+                                        "color": "blueLight2"
+                                    },
+                                    {
+                                        "id": "selxuW9m0n6xcE7LO",
+                                        "name": "completato",
+                                        "color": "purpleBright"
+                                    },
+                                    {
+                                        "id": "sel4O46INav33pdek",
+                                        "name": "scaduto",
+                                        "color": "yellowLight2"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "id": "fld6KO22ewu8kAZEg",
+                    "name": "stato progetto (from progetti)"
+                },
+                {
+                    "type": "multipleLookupValues",
+                    "options": {
+                        "isValid": true,
+                        "recordLinkFieldId": "fldxMNqBtkPZdEXHk",
+                        "fieldIdInLinkedTable": "fldh3Wodw0TG1gPzE",
+                        "result": {
+                            "type": "singleLineText"
+                        }
+                    },
+                    "id": "fldJO4tBO1EsR0m02",
+                    "name": "progetto (from progetti) 2"
+                }
+            ],
+            "views": [
+                {
+                    "id": "viwEjHBzqD1zWMGPF",
+                    "name": "agenda",
+                    "type": "grid"
+                },
+                {
+                    "id": "viw5TT5K9gc5GV6sZ",
+                    "name": "priorità",
+                    "type": "grid"
+                },
+                {
+                    "id": "viwKvoeutqVsIZ5W4",
+                    "name": "archiviati",
+                    "type": "grid"
+                },
+                {
+                    "id": "viwWDejXilsYSc8lF",
+                    "name": "calendario",
+                    "type": "calendar"
+                },
+                {
+                    "id": "viwKPJ0IPvL37JkbB",
+                    "name": "totale",
+                    "type": "grid"
+                },
+                {
+                    "id": "viwQV8BVFswH9Kix5",
+                    "name": "Kanban",
+                    "type": "kanban"
+                }
+            ]
+        },
+        {
+            "id": "tblawBHzLl4mndHIN",
+            "name": "interviste",
+            "primaryFieldId": "fldaIRHmHhZilZ4rI",
+            "fields": [
+                {
+                    "type": "singleLineText",
+                    "id": "fldaIRHmHhZilZ4rI",
+                    "name": "nome"
+                },
+                {
+                    "type": "multipleRecordLinks",
+                    "options": {
+                        "linkedTableId": "tblhRGoqA4YK3usQJ",
+                        "isReversed": false,
+                        "prefersSingleRecordLink": false,
+                        "inverseLinkFieldId": "fldHOJYn9SAMWyGNG"
+                    },
+                    "id": "fldbIXjihsolWWrBH",
+                    "name": "progetto"
+                },
+                {
+                    "type": "multilineText",
+                    "id": "fldQP2oOMmPw8Sx73",
+                    "name": "descrizione"
+                },
+                {
+                    "type": "multilineText",
+                    "id": "fldJmKWLor65c3dZ6",
+                    "name": "pubblico di riferimento"
+                },
+                {
+                    "type": "multilineText",
+                    "id": "fldP7XRsDfPUIeem8",
+                    "name": "storia"
+                },
+                {
+                    "type": "singleSelect",
+                    "options": {
+                        "choices": [
+                            {
+                                "id": "selBPn1cks3Q9WSZN",
+                                "name": "Informare",
+                                "color": "blueLight2"
+                            },
+                            {
+                                "id": "selkhj7XBBY1YSqnS",
+                                "name": "Vendere prodotti/servizi",
+                                "color": "cyanLight2"
+                            },
+                            {
+                                "id": "selXpa02D4gJUPu6o",
+                                "name": "Generare contatti o richieste di preventivo",
+                                "color": "tealLight2"
+                            },
+                            {
+                                "id": "selUpJOisfFvKkJJH",
+                                "name": "Iscrizione a una newsletter o community",
+                                "color": "greenLight2"
+                            },
+                            {
+                                "id": "sell05Mwg26WEgY5z",
+                                "name": "Altro",
+                                "color": "yellowLight2"
+                            }
+                        ]
+                    },
+                    "id": "fldY3H9LizlknTTCX",
+                    "name": "obiettivi"
+                },
+                {
+                    "type": "multilineText",
+                    "id": "fldwo8FGzl6kU11tQ",
+                    "name": "obiettivi (altro)"
+                },
+                {
+                    "type": "multilineText",
+                    "id": "fldyY24vgEZg0LeJc",
+                    "name": "azioni"
+                },
+                {
+                    "type": "singleSelect",
+                    "options": {
+                        "choices": [
+                            {
+                                "id": "selU5usHhNWm8boJu",
+                                "name": "Formale e professionale",
+                                "color": "blueLight2"
+                            },
+                            {
+                                "id": "selVYYGUJSHZ6NZy4",
+                                "name": "Informale e amichevole",
+                                "color": "cyanLight2"
+                            },
+                            {
+                                "id": "seleeKUhcaA7eGagq",
+                                "name": "Istituzionale e autorevole",
+                                "color": "tealLight2"
+                            },
+                            {
+                                "id": "selsW9IGgWkwkA11I",
+                                "name": "Creativo e originale",
+                                "color": "greenLight2"
+                            },
+                            {
+                                "id": "seloRueSQZdmr5i9t",
+                                "name": "Altro",
+                                "color": "yellowLight2"
+                            }
+                        ]
+                    },
+                    "id": "fldjefeqMqztsFPLh",
+                    "name": "tono"
+                },
+                {
+                    "type": "multilineText",
+                    "id": "fldj977ifzeVrFy40",
+                    "name": "tono (altro)"
+                },
+                {
+                    "type": "multilineText",
+                    "id": "fldjualmSCqsTWjnP",
+                    "name": "keywords"
+                },
+                {
+                    "type": "multilineText",
+                    "id": "fldxW1HoyYraDuK7t",
+                    "name": "reference"
+                },
+                {
+                    "type": "singleSelect",
+                    "options": {
+                        "choices": [
+                            {
+                                "id": "selnclwmBRDyaqufs",
+                                "name": "Morbide e fluide",
+                                "color": "blueLight2"
+                            },
+                            {
+                                "id": "selSfB6S0po9tA8Hu",
+                                "name": "Nette e dirette",
+                                "color": "orangeLight2"
+                            }
+                        ]
+                    },
+                    "id": "fldh4DCrwlmDjcqz7",
+                    "name": "forme"
+                },
+                {
+                    "type": "multipleSelects",
+                    "options": {
+                        "choices": [
+                            {
+                                "id": "selkHzBy0mqogAAc5",
+                                "name": "moderno",
+                                "color": "blueLight2"
+                            },
+                            {
+                                "id": "selto7fem56YRppqI",
+                                "name": "d'impatto",
+                                "color": "cyanLight2"
+                            },
+                            {
+                                "id": "seluSn39Gyx5fc4s1",
+                                "name": "eccentrico",
+                                "color": "tealLight2"
+                            },
+                            {
+                                "id": "selSjconaxQCGYg15",
+                                "name": "classico",
+                                "color": "greenLight2"
+                            },
+                            {
+                                "id": "sel2zvLPCTEoTxV7v",
+                                "name": "minimale",
+                                "color": "yellowLight2"
+                            },
+                            {
+                                "id": "selpJg1ExEMXVK6yi",
+                                "name": "neutro",
+                                "color": "orangeLight2"
+                            },
+                            {
+                                "id": "selCfBC8i1UaYGwxM",
+                                "name": "accogliente",
+                                "color": "purpleLight2"
+                            }
+                        ]
+                    },
+                    "id": "fldEGRnwIGfoTauGE",
+                    "name": "font"
+                },
+                {
+                    "type": "singleSelect",
+                    "options": {
+                        "choices": [
+                            {
+                                "id": "selZgjqMLafHoC1qA",
+                                "name": "Caldi (rossi, arancioni, gialli, beige, ecc.)",
+                                "color": "orangeLight2"
+                            },
+                            {
+                                "id": "selL5ynusTiNVEM3D",
+                                "name": "Freddi (blu, verdi, viola, grigi, ecc.)",
+                                "color": "blueLight2"
+                            },
+                            {
+                                "id": "selct5emY5meoDOkq",
+                                "name": "Neutri (bianco, nero, tonalità pastello)",
+                                "color": "grayLight2"
+                            },
+                            {
+                                "id": "sel25cqJsftlCAMKL",
+                                "name": "Altro ",
+                                "color": "greenLight2"
+                            }
+                        ]
+                    },
+                    "id": "fld392dQhOxDHNrSA",
+                    "name": "colori"
+                },
+                {
+                    "type": "multilineText",
+                    "id": "flddz2M27vSkcYMXt",
+                    "name": "colori (altro)"
+                },
+                {
+                    "type": "multilineText",
+                    "id": "fldKgjrZBPdg1Thur",
+                    "name": "colori descrittivo"
+                },
+                {
+                    "type": "multipleAttachments",
+                    "options": {
+                        "isReversed": false
+                    },
+                    "id": "fldReaSuuyWcns67c",
+                    "name": "logo"
+                },
+                {
+                    "type": "multipleSelects",
+                    "options": {
+                        "choices": [
+                            {
+                                "id": "selg5L4uoN6A4WVxW",
+                                "name": "Testi per le pagine",
+                                "color": "blueLight2"
+                            },
+                            {
+                                "id": "selTc7siU9FD3aXiW",
+                                "name": "Immagini o fotografie",
+                                "color": "cyanLight2"
+                            },
+                            {
+                                "id": "sel5RzwnvjXNPF8y0",
+                                "name": "Video o altri media",
+                                "color": "tealLight2"
+                            }
+                        ]
+                    },
+                    "id": "fldMtPvWzVPN8jheI",
+                    "name": "materiali"
+                },
+                {
+                    "type": "multilineText",
+                    "id": "fld2RayJwlLXKTgSf",
+                    "name": "note"
+                },
+                {
+                    "type": "multipleLookupValues",
+                    "options": {
+                        "isValid": true,
+                        "recordLinkFieldId": "fldbIXjihsolWWrBH",
+                        "fieldIdInLinkedTable": "fldh3Wodw0TG1gPzE",
+                        "result": {
+                            "type": "singleLineText"
+                        }
+                    },
+                    "id": "fldNzLVS53Q8eyHzQ",
+                    "name": "progetto (from progetti)"
+                }
+            ],
+            "views": [
+                {
+                    "id": "viwfghx4FD2QjIwlW",
+                    "name": "totale",
+                    "type": "grid"
+                }
+            ]
+        },
+        {
+            "id": "tblkaOcgRQtBPg0pn",
+            "name": "personal",
+            "primaryFieldId": "fldkm4c3NMoxN2n8i",
+            "fields": [
+                {
+                    "type": "singleLineText",
+                    "id": "fldkm4c3NMoxN2n8i",
+                    "name": "nome e cognome"
+                },
+                {
+                    "type": "button",
+                    "id": "fldhengMjwSzAlD8W",
+                    "name": "visualizza anagrafica"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldkCQ0ZGqi12jaOa",
+                    "name": "professione"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldSq2vGGO6T6FyM8",
+                    "name": "codice ATECO"
+                },
+                {
+                    "type": "email",
+                    "id": "fldqJPEa7Ao9iHzGv",
+                    "name": "email"
+                },
+                {
+                    "type": "email",
+                    "id": "fldiB66He9MSXdy6j",
+                    "name": "pec"
+                },
+                {
+                    "type": "phoneNumber",
+                    "id": "fldwpeOz5aKONioWi",
+                    "name": "telefono"
+                },
+                {
+                    "type": "url",
+                    "id": "fld4vUwdWKSMk5NQX",
+                    "name": "sito web"
+                },
+                {
+                    "type": "date",
+                    "options": {
+                        "dateFormat": {
+                            "name": "friendly",
+                            "format": "LL"
+                        }
+                    },
+                    "id": "fldcYQTP7kAOMM36F",
+                    "name": "data di nascita"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldH1m7GFLocGpexD",
+                    "name": "luogo di nascita"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldhEPbqGcKpUkirP",
+                    "name": "provincia di nascita"
+                },
+                {
+                    "type": "multilineText",
+                    "id": "fldNSbsHZ8B4M6VER",
+                    "name": "indirizzo (residenza)"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldmmwkiJMpmzhvV4",
+                    "name": "civico (residenza)"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldCbWmnyOwe2ABfA",
+                    "name": "CAP (residenza)"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fld26HjaUNLlRFscb",
+                    "name": "comune (residenza)"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldNe8ZZrd3VVpfQW",
+                    "name": "provincia (residenza)"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldBTt2V9WE53EsmZ",
+                    "name": "paese (residenza)"
+                },
+                {
+                    "type": "multilineText",
+                    "id": "fldwM9Fudut3mWwTN",
+                    "name": "indirizzo (domicilio)"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldNJLV7lkDTHjdLh",
+                    "name": "civico (domicilio)"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldI7H7MgtVjhjwkx",
+                    "name": "CAP (domicilio)"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldG1ReaZH7oXV3pi",
+                    "name": "comune (domicilio)"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldExalxL51u9naKl",
+                    "name": "provincia (domicilio)"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fld1eJJY79ZNodQ0H",
+                    "name": "paese (domicilio)"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldvaXd3VANXRZpTn",
+                    "name": "numero C.I."
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldAjyMGNJPwS1FEK",
+                    "name": "cod. fiscale"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldvVwUicji9Uvjcg",
+                    "name": "p. IVA"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldBSboGzZyICDQk9",
+                    "name": "codice univoco SDI"
+                },
+                {
+                    "type": "singleLineText",
+                    "id": "fldQic0TFz1ovzqFc",
+                    "name": "IBAN"
+                }
+            ],
+            "views": [
+                {
+                    "id": "viwpUu2LL8r5LLP2w",
+                    "name": "anagrafica",
+                    "type": "grid"
+                }
+            ]
+        }
+    ]
+}
